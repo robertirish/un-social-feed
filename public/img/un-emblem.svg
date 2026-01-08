@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+  <!-- Outer circle -->
+  <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="2"/>
+  
+  <!-- Globe grid -->
+  <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="50" cy="50" rx="30" ry="12" fill="none" stroke="currentColor" stroke-width="1"/>
+  <ellipse cx="50" cy="50" rx="12" ry="30" fill="none" stroke="currentColor" stroke-width="1"/>
+  <line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-width="1"/>
+  <line x1="20" y1="50" x2="80" y2="50" stroke="currentColor" stroke-width="1"/>
+  
+  <!-- Left olive branch -->
+  <path d="M15 75 Q25 60 30 50 Q25 40 15 25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="18" cy="35" rx="5" ry="3" transform="rotate(-30 18 35)"/>
+  <ellipse cx="20" cy="45" rx="5" ry="3" transform="rotate(-20 20 45)"/>
+  <ellipse cx="22" cy="55" rx="5" ry="3" transform="rotate(-10 22 55)"/>
+  <ellipse cx="20" cy="65" rx="5" ry="3" transform="rotate(10 20 65)"/>
+  <ellipse cx="18" cy="72" rx="4" ry="2.5" transform="rotate(20 18 72)"/>
+  
+  <!-- Right olive branch -->
+  <path d="M85 75 Q75 60 70 50 Q75 40 85 25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="82" cy="35" rx="5" ry="3" transform="rotate(30 82 35)"/>
+  <ellipse cx="80" cy="45" rx="5" ry="3" transform="rotate(20 80 45)"/>
+  <ellipse cx="78" cy="55" rx="5" ry="3" transform="rotate(10 78 55)"/>
+  <ellipse cx="80" cy="65" rx="5" ry="3" transform="rotate(-10 80 65)"/>
+  <ellipse cx="82" cy="72" rx="4" ry="2.5" transform="rotate(-20 82 72)"/>
+</svg>

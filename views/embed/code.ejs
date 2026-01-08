@@ -1,0 +1,105 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex">
+  <%- include('../partials/sidebar', { active: 'embed' }) %>
+  
+  <div class="main-content">
+    <div class="content-header">
+      <h4 class="mb-0">Embed Code</h4>
+    </div>
+    
+    <div class="content-body">
+      <%- include('../partials/messages') %>
+      
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">iframe Embed Code</h6>
+            </div>
+            <div class="card-body">
+              <p class="text-muted small mb-3">
+                Copy and paste this code into your website. The feed will display as a masonry grid 
+                and works without loading any external scripts on the host site.
+              </p>
+              
+              <div class="position-relative">
+                <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all;"><code id="embed-code"><%= embedCode %></code></pre>
+                <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyCode()">
+                  <i class="bi bi-clipboard me-1"></i>Copy
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">Customization Options</h6>
+            </div>
+            <div class="card-body">
+              <h6 class="small text-muted mb-2">Adjusting Height</h6>
+              <p class="small mb-3">
+                Modify the <code>min-height</code> value in the embed code to control the minimum height of the feed.
+              </p>
+              
+              <h6 class="small text-muted mb-2">Responsive Width</h6>
+              <p class="small mb-3">
+                The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
+              </p>
+              
+              <h6 class="small text-muted mb-2">Auto-Resize (Advanced)</h6>
+              <p class="small mb-0">
+                For sites that allow scripts, you can use this to auto-resize the iframe:
+              </p>
+              <pre class="p-3 bg-light border rounded mt-2 mb-0" style="font-size: 0.75rem;">
+<code>&lt;script&gt;
+window.addEventListener('message', function(e) {
+  if (e.data.type === 'resize') {
+    document.querySelector('iframe').style.height = e.data.height + 'px';
+  }
+});
+&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">Preview</h6>
+            </div>
+            <div class="card-body p-0">
+              <iframe 
+                src="<%= baseUrl %>/embed" 
+                style="width: 100%; min-height: 400px; border: none;"
+                title="Feed Preview">
+              </iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyCode() {
+  const code = document.getElementById('embed-code').textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    // Show feedback
+    const btn = event.target.closest('button');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-success');
+    
+    setTimeout(function() {
+      btn.innerHTML = originalHtml;
+      btn.classList.remove('btn-success');
+      btn.classList.add('btn-primary');
+    }, 2000);
+  });
+}
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,79 @@
+<div class="post-card d-flex align-items-center p-3 border-status-<%= post.status %> <%= post.isPinned ? 'pinned' : '' %>" data-id="<%= post.id %>">
+  <% if (isManager) { %>
+    <div class="drag-handle me-3">
+      <i class="bi bi-grip-vertical" style="font-size: 1.25rem;"></i>
+    </div>
+  <% } %>
+  
+  <% if (post.imageUrl) { %>
+    <img src="<%= post.imageUrl %>" alt="" class="post-thumbnail me-3">
+  <% } else { %>
+    <div class="post-thumbnail me-3 d-flex align-items-center justify-content-center bg-light">
+      <i class="bi bi-image text-muted"></i>
+    </div>
+  <% } %>
+  
+  <div class="flex-grow-1">
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <% if (post.isPinned) { %>
+        <i class="bi bi-pin-fill text-warning" title="Pinned"></i>
+      <% } %>
+      <h6 class="mb-0"><%= post.title %></h6>
+      <span class="badge badge-<%= post.status %> text-capitalize"><%= post.status %></span>
+      
+      <span class="source-icon source-<%= post.sourceType %>" title="<%= post.sourceType %>">
+        <% if (post.sourceType === 'youtube') { %>
+          <i class="bi bi-youtube"></i>
+        <% } else if (post.sourceType === 'twitter') { %>
+          <i class="bi bi-twitter-x"></i>
+        <% } else if (post.sourceType === 'instagram') { %>
+          <i class="bi bi-instagram"></i>
+        <% } else { %>
+          <i class="bi bi-file-text"></i>
+        <% } %>
+      </span>
+    </div>
+    <div class="small text-muted">
+      By <%= post.author ? post.author.name : 'Unknown' %> &bull; 
+      <%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+    </div>
+  </div>
+  
+  <div class="d-flex align-items-center gap-2">
+    <% if (isManager) { %>
+      <% if (post.status !== 'approved') { %>
+        <form action="/posts/<%= post.id %>/approve" method="POST" class="d-inline">
+          <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
+            <i class="bi bi-check-lg"></i>
+          </button>
+        </form>
+      <% } %>
+      
+      <% if (post.status !== 'rejected') { %>
+        <form action="/posts/<%= post.id %>/reject" method="POST" class="d-inline">
+          <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </form>
+      <% } %>
+      
+      <form action="/posts/<%= post.id %>/pin" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-sm <%= post.isPinned ? 'btn-warning' : 'btn-outline-warning' %>" title="<%= post.isPinned ? 'Unpin' : 'Pin' %>">
+          <i class="bi bi-pin<%= post.isPinned ? '-fill' : '' %>"></i>
+        </button>
+      </form>
+    <% } %>
+    
+    <a href="/posts/<%= post.id %>/edit" class="btn btn-sm btn-outline-secondary" title="Edit">
+      <i class="bi bi-pencil"></i>
+    </a>
+    
+    <% if (isManager) { %>
+      <form action="/posts/<%= post.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post?');">
+        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+          <i class="bi bi-trash"></i>
+        </button>
+      </form>
+    <% } %>
+  </div>
+</div>

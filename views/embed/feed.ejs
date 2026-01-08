@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UN Social Feed</title>
+  
+  <!-- All styles are inline - no external scripts needed -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+    
+    /* UN Blue accent */
+    a {
+      color: #009EDB;
+      text-decoration: none;
+    }
+    
+    a:hover {
+      color: #0077A8;
+    }
+    
+    /* CSS-only Masonry layout using columns */
+    .masonry-grid {
+      column-count: 3;
+      column-gap: 1rem;
+    }
+    
+    @media (max-width: 992px) {
+      .masonry-grid {
+        column-count: 2;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .masonry-grid {
+        column-count: 1;
+      }
+    }
+    
+    /* Card styles */
+    .feed-card {
+      break-inside: avoid;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .feed-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .feed-card.pinned {
+      border: 2px solid #009EDB;
+    }
+    
+    .feed-card.pinned::before {
+      content: 'PINNED';
+      display: block;
+      background: #009EDB;
+      color: #fff;
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.25rem 0.75rem;
+    }
+    
+    .feed-card-image {
+      width: 100%;
+      display: block;
+    }
+    
+    .feed-card-body {
+      padding: 1rem;
+    }
+    
+    .feed-card-title {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+    
+    .feed-card-content {
+      font-size: 0.875rem;
+      color: #555;
+    }
+    
+    .feed-card-content p {
+      margin-bottom: 0.5rem;
+    }
+    
+    .feed-card-content p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .feed-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #eee;
+      font-size: 0.75rem;
+      color: #888;
+    }
+    
+    .feed-card-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .source-original {
+      background: #e5e5e5;
+      color: #666;
+    }
+    
+    .source-youtube {
+      background: #FF0000;
+      color: #fff;
+    }
+    
+    .source-twitter {
+      background: #1DA1F2;
+      color: #fff;
+    }
+    
+    .source-instagram {
+      background: linear-gradient(45deg, #F58529, #DD2A7B);
+      color: #fff;
+    }
+    
+    /* Video embed container */
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #888;
+    }
+    
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <% if (posts.length === 0) { %>
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+      <p>No posts available</p>
+    </div>
+  <% } else { %>
+    <div class="masonry-grid">
+      <% posts.forEach(post => { %>
+        <div class="feed-card <%= post.isPinned ? 'pinned' : '' %>">
+          <% if (post.sourceType === 'youtube' && post.sourceId) { %>
+            <!-- Embedded YouTube Video -->
+            <div class="video-container">
+              <iframe 
+                src="https://www.youtube.com/embed/<%= post.sourceId %>" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                loading="lazy"
+                title="<%= post.title %>">
+              </iframe>
+            </div>
+          <% } else if (post.imageUrl) { %>
+            <img 
+              src="<%= post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl %>" 
+              alt="<%= post.title %>" 
+              class="feed-card-image"
+              loading="lazy"
+            >
+          <% } %>
+          
+          <div class="feed-card-body">
+            <h3 class="feed-card-title"><%= post.title %></h3>
+            
+            <% if (post.content && post.content !== '<p><br></p>') { %>
+              <div class="feed-card-content">
+                <%- post.content %>
+              </div>
+            <% } %>
+            
+            <div class="feed-card-meta">
+              <span class="feed-card-source source-<%= post.sourceType %>">
+                <% if (post.sourceType === 'youtube') { %>
+                  YouTube
+                <% } else if (post.sourceType === 'twitter') { %>
+                  X/Twitter
+                <% } else if (post.sourceType === 'instagram') { %>
+                  Instagram
+                <% } else { %>
+                  Original
+                <% } %>
+              </span>
+              
+              <% if (post.sourceUrl && post.sourceType !== 'original') { %>
+                <a href="<%= post.sourceUrl %>" target="_blank" rel="noopener noreferrer">View Source</a>
+              <% } %>
+              
+              <span style="margin-left: auto;">
+                <%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+              </span>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</body>
+</html>

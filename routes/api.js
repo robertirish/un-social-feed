@@ -1,0 +1,95 @@
+const express = require('express');
+const router = express.Router();
+const { Post, User } = require('../models');
+const { ensureAuthenticated, canManagePosts } = require('../middleware/auth');
+
+// Get approved posts (public API)
+router.get('/posts', async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      where: { status: 'approved' },
+      include: [{ model: User, as: 'author', attributes: ['name'] }],
+      order: [
+        ['isPinned', 'DESC'],
+        ['sortOrder', 'ASC'],
+        ['createdAt', 'DESC']
+      ],
+      attributes: ['id', 'title', 'content', 'imageUrl', 'sourceType', 'sourceUrl', 'isPinned', 'createdAt']
+    });
+
+    res.json({ success: true, posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Error loading posts' });
+  }
+});
+
+// Update post order (drag and drop)
+router.post('/posts/reorder', canManagePosts, async (req, res) => {
+  try {
+    const { order } = req.body; // Array of { id, sortOrder }
+    
+    if (!Array.isArray(order)) {
+      return res.status(400).json({ success: false, error: 'Invalid order data' });
+    }
+
+    // Update each post's sort order
+    await Promise.all(
+      order.map(item => 
+        Post.update(
+          { sortOrder: item.sortOrder },
+          { where: { id: item.id } }
+        )
+      )
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Error updating order' });
+  }
+});
+
+// Quick status update
+router.post('/posts/:id/status', canManagePosts, async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status' });
+    }
+
+    await Post.update(
+      { 
+        status,
+        reviewerId: req.user.id,
+        reviewedAt: new Date()
+      },
+      { where: { id: req.params.id } }
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Error updating status' });
+  }
+});
+
+// Toggle pin
+router.post('/posts/:id/pin', canManagePosts, async (req, res) => {
+  try {
+    const post = await Post.findByPk(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
+
+    await post.update({ isPinned: !post.isPinned });
+    res.json({ success: true, isPinned: post.isPinned });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Error toggling pin' });
+  }
+});
+
+module.exports = router;

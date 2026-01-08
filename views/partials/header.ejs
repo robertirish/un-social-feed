@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' | ' : '' %>UN Social Feed</title>
+  
+  <!-- Favicon - UN Emblem -->
+  <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/e/ee/UN_emblem_blue.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/32px-UN_emblem_blue.svg.png">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/180px-UN_emblem_blue.svg.png">
+  
+  <!-- Google Fonts - Open Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  
+  <!-- Quill Editor CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.snow.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --un-blue: #009EDB;
+      --un-blue-dark: #0077A8;
+      --un-blue-light: #E6F4FA;
+      --status-pending: #F0AD4E;
+      --status-approved: #28A745;
+      --status-rejected: #DC3545;
+      --border-color: #E5E5E5;
+      --bg-light: #FAFAFA;
+    }
+    
+    * {
+      font-family: 'Open Sans', sans-serif;
+    }
+    
+    body {
+      background-color: #fff;
+      color: #333;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 500;
+    }
+    
+    a {
+      color: var(--un-blue);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      color: var(--un-blue-dark);
+    }
+    
+    .btn-primary {
+      background-color: var(--un-blue);
+      border-color: var(--un-blue);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--un-blue-dark);
+      border-color: var(--un-blue-dark);
+    }
+    
+    .btn-outline-primary {
+      color: var(--un-blue);
+      border-color: var(--un-blue);
+    }
+    
+    .btn-outline-primary:hover {
+      background-color: var(--un-blue);
+      border-color: var(--un-blue);
+    }
+    
+    .text-primary {
+      color: var(--un-blue) !important;
+    }
+    
+    .bg-primary {
+      background-color: var(--un-blue) !important;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      min-height: 100vh;
+      border-right: 1px solid var(--border-color);
+      background: #fff;
+    }
+    
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      font-size: 1.125rem;
+      color: var(--un-blue);
+      gap: 0.5rem;
+    }
+    
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+    
+    .sidebar-nav .nav-link {
+      padding: 0.75rem 1.5rem;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+      color: var(--un-blue);
+      background: var(--un-blue-light);
+    }
+    
+    .sidebar-nav .nav-link.active {
+      color: var(--un-blue);
+      background: var(--un-blue-light);
+      font-weight: 500;
+    }
+    
+    .sidebar-section {
+      padding: 1rem 1.5rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #999;
+    }
+    
+    /* Main content */
+    .main-content {
+      flex: 1;
+      min-height: 100vh;
+      background: var(--bg-light);
+    }
+    
+    .content-header {
+      padding: 1.5rem 2rem;
+      background: #fff;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .content-body {
+      padding: 2rem;
+    }
+    
+    /* Cards */
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: none;
+    }
+    
+    .card-header {
+      background: #fff;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 500;
+    }
+    
+    /* Status badges */
+    .badge-pending {
+      background-color: var(--status-pending);
+      color: #fff;
+    }
+    
+    .badge-approved {
+      background-color: var(--status-approved);
+      color: #fff;
+    }
+    
+    .badge-rejected {
+      background-color: var(--status-rejected);
+      color: #fff;
+    }
+    
+    /* Status borders */
+    .border-status-pending {
+      border-left: 4px solid var(--status-pending) !important;
+    }
+    
+    .border-status-approved {
+      border-left: 4px solid var(--status-approved) !important;
+    }
+    
+    .border-status-rejected {
+      border-left: 4px solid var(--status-rejected) !important;
+    }
+    
+    /* Post cards */
+    .post-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: box-shadow 0.2s;
+    }
+    
+    .post-card:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .post-card.dragging {
+      opacity: 0.5;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    
+    .post-card .drag-handle {
+      cursor: grab;
+      color: #ccc;
+      padding: 0.5rem;
+    }
+    
+    .post-card .drag-handle:hover {
+      color: #999;
+    }
+    
+    .post-card.pinned {
+      background: #FFFBEB;
+      border-color: #FCD34D;
+    }
+    
+    /* Post image thumbnail */
+    .post-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    
+    /* Section labels for pinned/unpinned */
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    #pinned-posts-list {
+      padding-bottom: 1rem !important;
+    }
+    
+    #pinned-posts-list .post-card:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Stats cards */
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+    
+    .stat-card .stat-label {
+      color: #666;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* Form styles */
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--un-blue);
+      box-shadow: 0 0 0 0.2rem rgba(0, 158, 219, 0.15);
+    }
+    
+    /* Table styles */
+    .table {
+      border-color: var(--border-color);
+    }
+    
+    .table thead th {
+      background: var(--bg-light);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: #666;
+    }
+    
+    .table td {
+      vertical-align: middle;
+    }
+    
+    /* Quill editor */
+    .ql-container {
+      min-height: 200px;
+      font-family: 'Open Sans', sans-serif;
+    }
+    
+    .ql-editor {
+      min-height: 200px;
+    }
+    
+    /* User info in header */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--un-blue-light);
+      color: var(--un-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    
+    /* Role badges */
+    .role-admin {
+      background: var(--un-blue);
+    }
+    
+    .role-editor {
+      background: #6C757D;
+    }
+    
+    .role-user {
+      background: #ADB5BD;
+    }
+    
+    /* Source type icons */
+    .source-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+    }
+    
+    .source-original {
+      background: #E5E5E5;
+      color: #666;
+    }
+    
+    .source-instagram {
+      background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF);
+      color: #fff;
+    }
+    
+    .source-twitter {
+      background: #1DA1F2;
+      color: #fff;
+    }
+    
+    .source-youtube {
+      background: #FF0000;
+      color: #fff;
+    }
+    
+    /* Alert styles */
+    .alert {
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
