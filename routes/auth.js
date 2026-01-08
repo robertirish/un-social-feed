@@ -12,10 +12,26 @@ router.get('/login', ensureGuest, (req, res) => {
 
 // Login handler
 router.post('/login', ensureGuest, (req, res, next) => {
-  passport.authenticate('local', {
-    successRedirect: '/admin',
-    failureRedirect: '/auth/login',
-    failureFlash: true
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error('Login error:', err);
+      req.flash('error_msg', 'An error occurred during login');
+      return res.redirect('/auth/login');
+    }
+    if (!user) {
+      console.log('Login failed:', info);
+      req.flash('error_msg', info ? info.message : 'Invalid credentials');
+      return res.redirect('/auth/login');
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        console.error('Session error:', err);
+        req.flash('error_msg', 'Session error');
+        return res.redirect('/auth/login');
+      }
+      console.log('Login successful for:', user.email);
+      return res.redirect('/admin');
+    });
   })(req, res, next);
 });
 
