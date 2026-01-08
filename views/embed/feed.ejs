@@ -33,31 +33,31 @@
       color: #0077A8;
     }
     
-    /* CSS-only Masonry layout using columns */
+    /* CSS Grid layout - flows left to right */
     .masonry-grid {
-      column-count: 3;
-      column-gap: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      align-items: start;
     }
     
     @media (max-width: 992px) {
       .masonry-grid {
-        column-count: 2;
+        grid-template-columns: repeat(2, 1fr);
       }
     }
     
     @media (max-width: 576px) {
       .masonry-grid {
-        column-count: 1;
+        grid-template-columns: 1fr;
       }
     }
     
     /* Card styles */
     .feed-card {
-      break-inside: avoid;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
       overflow: hidden;
       transition: transform 0.2s, box-shadow 0.2s;
     }
@@ -65,21 +65,6 @@
     .feed-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    .feed-card.pinned {
-      border: 2px solid #009EDB;
-    }
-    
-    .feed-card.pinned::before {
-      content: 'PINNED';
-      display: block;
-      background: #009EDB;
-      color: #fff;
-      font-size: 0.625rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      padding: 0.25rem 0.75rem;
     }
     
     .feed-card-image {
@@ -197,7 +182,7 @@
   <% } else { %>
     <div class="masonry-grid">
       <% posts.forEach(post => { %>
-        <div class="feed-card <%= post.isPinned ? 'pinned' : '' %>">
+        <div class="feed-card">
           <% if (post.sourceType === 'youtube' && post.sourceId) { %>
             <!-- Embedded YouTube Video -->
             <div class="video-container">
