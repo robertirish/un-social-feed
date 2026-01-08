@@ -85,17 +85,23 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Start server first, then sync database
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-// Sync database after server starts
+// Sync database
 sequelize.sync({ alter: process.env.NODE_ENV === 'development' })
   .then(() => {
     console.log('Database connected and synced');
   })
   .catch(err => {
     console.error('Database connection error:', err.message);
-    // Don't crash - let health checks show the error
   });
+
+// For Vercel serverless, export the app
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // For Railway/local, start the server
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
