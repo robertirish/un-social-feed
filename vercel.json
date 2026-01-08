@@ -19,6 +19,14 @@
   ],
   "routes": [
     {
+      "src": "/embed(.*)",
+      "dest": "/api/index.js",
+      "headers": {
+        "X-Frame-Options": "ALLOWALL",
+        "Content-Security-Policy": "frame-ancestors *"
+      }
+    },
+    {
       "src": "/(.*)",
       "dest": "/api/index.js"
     }

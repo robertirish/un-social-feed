@@ -4,6 +4,10 @@ const { Post, User } = require('../models');
 
 // Embeddable feed - self-contained HTML with no external scripts
 router.get('/', async (req, res) => {
+  // Allow embedding in iframes
+  res.removeHeader('X-Frame-Options');
+  res.setHeader('Content-Security-Policy', "frame-ancestors *");
+  
   try {
     const posts = await Post.findAll({
       where: { status: 'approved' },
