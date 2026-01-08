@@ -221,4 +221,43 @@ router.get('/seed/:key', async (req, res) => {
   }
 });
 
+// Add specific admin user - visit /addadmin/unsocialfeed2026
+router.get('/addadmin/:key', async (req, res) => {
+  if (req.params.key !== 'unsocialfeed2026') {
+    return res.status(403).json({ error: 'Invalid key' });
+  }
+  
+  try {
+    // Check if user already exists
+    const existing = await User.findOne({ where: { email: 'robert.f.irish@gmail.com' } });
+    if (existing) {
+      // Update to admin if not already
+      if (existing.role !== 'admin') {
+        await existing.update({ role: 'admin' });
+        return res.json({ message: 'User upgraded to admin', email: 'robert.f.irish@gmail.com' });
+      }
+      return res.json({ message: 'Admin user already exists', email: 'robert.f.irish@gmail.com' });
+    }
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('U8zx4.o68wYFQs*g9Aw@', salt);
+    
+    await User.create({
+      name: 'Robert Irish',
+      email: 'robert.f.irish@gmail.com',
+      password: hashedPassword,
+      role: 'admin'
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Admin user created!',
+      email: 'robert.f.irish@gmail.com'
+    });
+  } catch (err) {
+    console.error('Add admin error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
