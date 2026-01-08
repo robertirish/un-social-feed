@@ -34,31 +34,43 @@
           
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0">Customization Options</h6>
+              <h6 class="mb-0">Auto-Resize Embed Code (Recommended)</h6>
             </div>
             <div class="card-body">
-              <h6 class="small text-muted mb-2">Adjusting Height</h6>
-              <p class="small mb-3">
-                Modify the <code>min-height</code> value in the embed code to control the minimum height of the feed.
+              <p class="text-muted small mb-3">
+                If your site allows inline scripts, use this code to automatically resize the iframe to match the feed height (no scrolling):
               </p>
               
-              <h6 class="small text-muted mb-2">Responsive Width</h6>
-              <p class="small mb-3">
-                The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
-              </p>
-              
-              <h6 class="small text-muted mb-2">Auto-Resize (Advanced)</h6>
-              <p class="small mb-0">
-                For sites that allow scripts, you can use this to auto-resize the iframe:
-              </p>
-              <pre class="p-3 bg-light border rounded mt-2 mb-0" style="font-size: 0.75rem;">
-<code>&lt;script&gt;
+              <div class="position-relative">
+                <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all; font-size: 0.8rem;"><code id="embed-code-auto">&lt;iframe id="un-social-feed" src="<%= baseUrl %>/embed" style="width:100%;border:none;min-height:400px;" title="Social Feed"&gt;&lt;/iframe&gt;
+&lt;script&gt;
 window.addEventListener('message', function(e) {
-  if (e.data.type === 'resize') {
-    document.querySelector('iframe').style.height = e.data.height + 'px';
+  if (e.data && e.data.type === 'resize') {
+    document.getElementById('un-social-feed').style.height = e.data.height + 'px';
   }
 });
 &lt;/script&gt;</code></pre>
+                <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyAutoCode()">
+                  <i class="bi bi-clipboard me-1"></i>Copy
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">Customization Options</h6>
+            </div>
+            <div class="card-body">
+              <h6 class="small text-muted mb-2">Adjusting Height (Basic Embed)</h6>
+              <p class="small mb-3">
+                For the basic iframe embed, modify the <code>min-height</code> value to control the minimum height of the feed.
+              </p>
+              
+              <h6 class="small text-muted mb-2">Responsive Width</h6>
+              <p class="small mb-0">
+                The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
+              </p>
             </div>
           </div>
         </div>
@@ -85,9 +97,16 @@ window.addEventListener('message', function(e) {
 <script>
 function copyCode() {
   const code = document.getElementById('embed-code').textContent;
-  navigator.clipboard.writeText(code).then(function() {
-    // Show feedback
-    const btn = event.target.closest('button');
+  copyToClipboard(code, event.target.closest('button'));
+}
+
+function copyAutoCode() {
+  const code = document.getElementById('embed-code-auto').textContent;
+  copyToClipboard(code, event.target.closest('button'));
+}
+
+function copyToClipboard(text, btn) {
+  navigator.clipboard.writeText(text).then(function() {
     const originalHtml = btn.innerHTML;
     btn.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
     btn.classList.remove('btn-primary');
@@ -100,6 +119,16 @@ function copyCode() {
     }, 2000);
   });
 }
+
+// Auto-resize preview iframe
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'resize') {
+    const iframe = document.querySelector('.card-body iframe');
+    if (iframe) {
+      iframe.style.height = e.data.height + 'px';
+    }
+  }
+});
 </script>
 
 <%- include('../partials/footer') %>
