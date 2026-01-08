@@ -4,39 +4,38 @@ const path = require('path');
 let sequelize;
 
 const dbUrl = process.env.DATABASE_URL;
-console.log('Database URL exists:', !!dbUrl);
-console.log('Database URL starts with postgres:', dbUrl ? dbUrl.substring(0, 10) + '...' : 'N/A');
-console.log('Environment:', process.env.VERCEL ? 'Vercel' : (process.env.NODE_ENV || 'development'));
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL_URL;
 
-// Use PostgreSQL in production (Railway/Vercel), SQLite for local development
+console.log('Database URL exists:', !!dbUrl);
+console.log('Is Vercel:', isVercel);
+
+// Use PostgreSQL in production, SQLite for local development
 if (dbUrl && (dbUrl.startsWith('postgresql') || dbUrl.startsWith('postgres'))) {
-  console.log('Using PostgreSQL database');
+  console.log('Configuring PostgreSQL...');
   
-  // For Vercel, use Neon serverless driver
-  if (process.env.VERCEL) {
+  try {
+    // Try to use Neon serverless driver (works on Vercel)
     const { neonConfig } = require('@neondatabase/serverless');
     neonConfig.fetchConnectionCache = true;
     
+    console.log('Using Neon serverless driver');
     sequelize = new Sequelize(dbUrl, {
       dialect: 'postgres',
       dialectModule: require('@neondatabase/serverless'),
       logging: false,
       dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
+        ssl: true
       },
       pool: {
         max: 1,
         min: 0,
         idle: 0,
-        acquire: 3000,
-        evict: 30000
+        acquire: 3000
       }
     });
-  } else {
-    // For Railway or other platforms, use standard pg
+  } catch (e) {
+    console.log('Neon driver not available, using pg:', e.message);
+    // Fallback to standard pg driver
     sequelize = new Sequelize(dbUrl, {
       dialect: 'postgres',
       logging: false,
@@ -50,7 +49,7 @@ if (dbUrl && (dbUrl.startsWith('postgresql') || dbUrl.startsWith('postgres'))) {
   }
 } else {
   // SQLite for local development
-  console.log('Using SQLite database (local development)');
+  console.log('Using SQLite database');
   sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: path.join(__dirname, '..', 'database.sqlite'),
