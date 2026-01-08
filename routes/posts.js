@@ -3,8 +3,6 @@ const router = express.Router();
 const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts } = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const fs = require('fs');
-const path = require('path');
 
 // Create post form
 router.get('/create', ensureAuthenticated, (req, res) => {
@@ -51,7 +49,7 @@ router.post('/create', ensureAuthenticated, upload.single('image'), async (req, 
 
     // Handle image upload (not for YouTube - use auto thumbnail)
     if (req.file && sourceType !== 'youtube') {
-      postData.imageUrl = `/uploads/${req.file.filename}`;
+      postData.imageUrl = upload.toDataUrl(req.file);
     }
 
     await Post.create(postData);
@@ -123,14 +121,7 @@ router.post('/:id/edit', ensureAuthenticated, upload.single('image'), async (req
 
     // Handle image upload
     if (req.file) {
-      // Delete old image if exists
-      if (post.imageUrl && post.imageUrl.startsWith('/uploads/')) {
-        const oldPath = path.join(__dirname, '..', post.imageUrl);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      }
-      updateData.imageUrl = `/uploads/${req.file.filename}`;
+      updateData.imageUrl = upload.toDataUrl(req.file);
     }
 
     // Handle social media imports
@@ -217,13 +208,6 @@ router.post('/:id/delete', canManagePosts, async (req, res) => {
     const post = await Post.findByPk(req.params.id);
     
     if (post) {
-      // Delete image if exists
-      if (post.imageUrl && post.imageUrl.startsWith('/uploads/')) {
-        const imagePath = path.join(__dirname, '..', post.imageUrl);
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-        }
-      }
       await post.destroy();
     }
     
