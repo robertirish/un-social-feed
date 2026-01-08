@@ -4,6 +4,22 @@
     <span style="line-height: 1; padding-top: 2px;">UN Social Feed</span>
   </div>
   
+  <!-- User info at top with logout -->
+  <div class="sidebar-user px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+      <div class="user-avatar me-2">
+        <%= user ? user.name.charAt(0).toUpperCase() : '?' %>
+      </div>
+      <div>
+        <div class="small fw-medium"><%= user ? user.name : 'Guest' %></div>
+        <div class="small text-muted text-capitalize"><%= user ? user.role : '' %></div>
+      </div>
+    </div>
+    <a href="/auth/logout" class="btn btn-sm btn-outline-secondary" title="Logout">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+  
   <nav class="sidebar-nav flex-grow-1">
     <a href="/admin" class="nav-link <%= typeof active !== 'undefined' && active === 'dashboard' ? 'active' : '' %>">
       <i class="bi bi-house"></i> Dashboard
@@ -67,26 +83,13 @@
       </a>
     <% } %>
   </nav>
-  
-  <div class="p-3 border-top">
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="user-info">
-        <div class="user-avatar">
-          <%= user ? user.name.charAt(0).toUpperCase() : '?' %>
-        </div>
-        <div>
-          <div class="small fw-medium"><%= user ? user.name : 'Guest' %></div>
-          <div class="small text-muted text-capitalize"><%= user ? user.role : '' %></div>
-        </div>
-      </div>
-      <a href="/auth/logout" class="btn btn-sm btn-outline-secondary" title="Logout">
-        <i class="bi bi-box-arrow-right"></i>
-      </a>
-    </div>
-  </div>
 </div>
 
 <style>
+  .sidebar-user {
+    background: var(--bg-light);
+  }
+  
   .sidebar-nav .count-badge {
     color: #999;
     font-size: 0.8em;

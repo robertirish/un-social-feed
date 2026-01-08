@@ -4,41 +4,55 @@ const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts, isAdmin } = require('../middleware/auth');
 const { Op } = require('sequelize');
 
+const POSTS_PER_PAGE = 10;
+
 // Admin dashboard
 router.get('/', ensureAuthenticated, async (req, res) => {
   try {
     const isManager = ['editor', 'admin'].includes(req.user.role);
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * POSTS_PER_PAGE;
     
-    let posts;
-    if (isManager) {
-      posts = await Post.findAll({
-        include: [{ model: User, as: 'author', attributes: ['name'] }],
-        order: [
-          ['isPinned', 'DESC'],
-          ['sortOrder', 'ASC'],
-          ['createdAt', 'DESC']
-        ]
-      });
-    } else {
-      posts = await Post.findAll({
-        where: { authorId: req.user.id },
-        include: [{ model: User, as: 'author', attributes: ['name'] }],
-        order: [['createdAt', 'DESC']]
-      });
+    let whereClause = {};
+    if (!isManager) {
+      whereClause.authorId = req.user.id;
     }
 
+    // Get stats first (all posts)
+    const allPosts = await Post.findAll({ where: whereClause });
     const stats = {
-      total: posts.length,
-      pending: posts.filter(p => p.status === 'pending').length,
-      approved: posts.filter(p => p.status === 'approved').length,
-      rejected: posts.filter(p => p.status === 'rejected').length
+      total: allPosts.length,
+      pending: allPosts.filter(p => p.status === 'pending').length,
+      approved: allPosts.filter(p => p.status === 'approved').length,
+      rejected: allPosts.filter(p => p.status === 'rejected').length
     };
+
+    // Get paginated posts
+    const { count, rows: posts } = await Post.findAndCountAll({
+      where: whereClause,
+      include: [{ model: User, as: 'author', attributes: ['name'] }],
+      order: [
+        ['isPinned', 'DESC'],
+        ['sortOrder', 'ASC'],
+        ['createdAt', 'DESC']
+      ],
+      limit: POSTS_PER_PAGE,
+      offset: offset
+    });
+
+    const totalPages = Math.ceil(count / POSTS_PER_PAGE);
 
     res.render('admin/dashboard', {
       title: 'Dashboard',
       posts,
       stats,
-      isManager
+      isManager,
+      pagination: {
+        current: page,
+        total: totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (err) {
     console.error(err);
@@ -57,23 +71,35 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
       return res.redirect('/admin');
     }
 
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * POSTS_PER_PAGE;
     const where = status === 'all' ? {} : { status };
     
-    const posts = await Post.findAll({
+    const { count, rows: posts } = await Post.findAndCountAll({
       where,
       include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [
         ['isPinned', 'DESC'],
         ['sortOrder', 'ASC'],
         ['createdAt', 'DESC']
-      ]
+      ],
+      limit: POSTS_PER_PAGE,
+      offset: offset
     });
+
+    const totalPages = Math.ceil(count / POSTS_PER_PAGE);
 
     res.render('admin/posts-list', {
       title: `${status.charAt(0).toUpperCase() + status.slice(1)} Posts`,
       posts,
       currentStatus: status,
-      isManager: true
+      isManager: true,
+      pagination: {
+        current: page,
+        total: totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (err) {
     console.error(err);
