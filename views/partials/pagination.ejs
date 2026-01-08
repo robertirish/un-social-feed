@@ -1,8 +1,19 @@
 <% if (pagination && pagination.total > 1) { %>
+<%
+  // Build query string preserving search parameter
+  const buildUrl = (pageNum) => {
+    const params = new URLSearchParams();
+    params.set('page', pageNum);
+    if (typeof search !== 'undefined' && search) {
+      params.set('search', search);
+    }
+    return '?' + params.toString();
+  };
+%>
 <nav class="d-flex justify-content-center mt-4">
   <ul class="pagination pagination-sm mb-0">
     <li class="page-item <%= !pagination.hasPrev ? 'disabled' : '' %>">
-      <a class="page-link" href="?page=<%= pagination.current - 1 %>" <%= !pagination.hasPrev ? 'tabindex="-1"' : '' %>>
+      <a class="page-link" href="<%= buildUrl(pagination.current - 1) %>" <%= !pagination.hasPrev ? 'tabindex="-1"' : '' %>>
         <i class="bi bi-chevron-left"></i> Prev
       </a>
     </li>
@@ -10,7 +21,7 @@
     <% for (let i = 1; i <= pagination.total; i++) { %>
       <% if (i === 1 || i === pagination.total || (i >= pagination.current - 2 && i <= pagination.current + 2)) { %>
         <li class="page-item <%= i === pagination.current ? 'active' : '' %>">
-          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          <a class="page-link" href="<%= buildUrl(i) %>"><%= i %></a>
         </li>
       <% } else if (i === pagination.current - 3 || i === pagination.current + 3) { %>
         <li class="page-item disabled">
@@ -20,7 +31,7 @@
     <% } %>
     
     <li class="page-item <%= !pagination.hasNext ? 'disabled' : '' %>">
-      <a class="page-link" href="?page=<%= pagination.current + 1 %>" <%= !pagination.hasNext ? 'tabindex="-1"' : '' %>>
+      <a class="page-link" href="<%= buildUrl(pagination.current + 1) %>" <%= !pagination.hasNext ? 'tabindex="-1"' : '' %>>
         Next <i class="bi bi-chevron-right"></i>
       </a>
     </li>

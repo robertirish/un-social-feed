@@ -1,0 +1,13 @@
+<form method="GET" class="d-flex gap-2">
+  <div class="input-group input-group-sm" style="max-width: 300px;">
+    <input type="text" class="form-control" name="search" placeholder="<%= placeholder || 'Search...' %>" value="<%= search || '' %>">
+    <button type="submit" class="btn btn-outline-secondary">
+      <i class="bi bi-search"></i>
+    </button>
+  </div>
+  <% if (search) { %>
+    <a href="<%= clearUrl || '?' %>" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-x-lg"></i> Clear
+    </a>
+  <% } %>
+</form>

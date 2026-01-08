@@ -6,11 +6,14 @@
   <div class="main-content">
     <div class="content-header d-flex align-items-center justify-content-between">
       <h4 class="mb-0"><%= title %></h4>
-      <div class="btn-group">
-        <a href="/admin/posts/all" class="btn btn-sm <%= currentStatus === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>">All</a>
-        <a href="/admin/posts/pending" class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline-secondary' %>">Pending</a>
-        <a href="/admin/posts/approved" class="btn btn-sm <%= currentStatus === 'approved' ? 'btn-primary' : 'btn-outline-secondary' %>">Approved</a>
-        <a href="/admin/posts/rejected" class="btn btn-sm <%= currentStatus === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' %>">Rejected</a>
+      <div class="d-flex align-items-center gap-3">
+        <%- include('../partials/search', { search, placeholder: 'Search posts...', clearUrl: '/admin/posts/' + currentStatus }) %>
+        <div class="btn-group">
+          <a href="/admin/posts/all" class="btn btn-sm <%= currentStatus === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>">All</a>
+          <a href="/admin/posts/pending" class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline-secondary' %>">Pending</a>
+          <a href="/admin/posts/approved" class="btn btn-sm <%= currentStatus === 'approved' ? 'btn-primary' : 'btn-outline-secondary' %>">Approved</a>
+          <a href="/admin/posts/rejected" class="btn btn-sm <%= currentStatus === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' %>">Rejected</a>
+        </div>
       </div>
     </div>
     

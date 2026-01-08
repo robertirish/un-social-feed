@@ -11,15 +11,25 @@ router.get('/', ensureAuthenticated, async (req, res) => {
   try {
     const isManager = ['editor', 'admin'].includes(req.user.role);
     const page = parseInt(req.query.page) || 1;
+    const search = req.query.search || '';
     const offset = (page - 1) * POSTS_PER_PAGE;
     
     let whereClause = {};
     if (!isManager) {
       whereClause.authorId = req.user.id;
     }
+    
+    // Add search filter
+    if (search) {
+      whereClause[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { content: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
 
-    // Get stats first (all posts)
-    const allPosts = await Post.findAll({ where: whereClause });
+    // Get stats (all posts, not filtered by search)
+    const statsWhere = isManager ? {} : { authorId: req.user.id };
+    const allPosts = await Post.findAll({ where: statsWhere });
     const stats = {
       total: allPosts.length,
       pending: allPosts.filter(p => p.status === 'pending').length,
@@ -47,6 +57,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
       posts,
       stats,
       isManager,
+      search,
       pagination: {
         current: page,
         total: totalPages,
@@ -72,8 +83,31 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
     }
 
     const page = parseInt(req.query.page) || 1;
+    const search = req.query.search || '';
     const offset = (page - 1) * POSTS_PER_PAGE;
-    const where = status === 'all' ? {} : { status };
+    
+    let where = status === 'all' ? {} : { status };
+    
+    // Add search filter
+    if (search) {
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { content: { [Op.iLike]: `%${search}%` } }
+      ];
+      if (status !== 'all') {
+        where = {
+          [Op.and]: [
+            { status },
+            {
+              [Op.or]: [
+                { title: { [Op.iLike]: `%${search}%` } },
+                { content: { [Op.iLike]: `%${search}%` } }
+              ]
+            }
+          ]
+        };
+      }
+    }
     
     const { count, rows: posts } = await Post.findAndCountAll({
       where,
@@ -94,6 +128,7 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
       posts,
       currentStatus: status,
       isManager: true,
+      search,
       pagination: {
         current: page,
         total: totalPages,
@@ -111,14 +146,37 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
 // User management (admin only)
 router.get('/users', isAdmin, async (req, res) => {
   try {
-    const users = await User.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const search = req.query.search || '';
+    const offset = (page - 1) * POSTS_PER_PAGE;
+    
+    const whereClause = search ? {
+      [Op.or]: [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } }
+      ]
+    } : {};
+
+    const { count, rows: users } = await User.findAndCountAll({
+      where: whereClause,
       order: [['createdAt', 'DESC']],
-      attributes: ['id', 'name', 'email', 'role', 'createdAt']
+      attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+      limit: POSTS_PER_PAGE,
+      offset: offset
     });
+
+    const totalPages = Math.ceil(count / POSTS_PER_PAGE);
 
     res.render('admin/users', {
       title: 'User Management',
-      users
+      users,
+      search,
+      pagination: {
+        current: page,
+        total: totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (err) {
     console.error(err);
