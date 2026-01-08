@@ -8,6 +8,9 @@ const { sequelize } = require('./models');
 
 const app = express();
 
+// Trust proxy (required for secure cookies behind Railway/Heroku proxy)
+app.set('trust proxy', 1);
+
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -23,8 +26,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret-key',
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
