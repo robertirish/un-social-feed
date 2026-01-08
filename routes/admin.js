@@ -23,7 +23,8 @@ router.get('/', ensureAuthenticated, async (req, res) => {
     if (search) {
       whereClause[Op.or] = [
         { title: { [Op.iLike]: `%${search}%` } },
-        { content: { [Op.iLike]: `%${search}%` } }
+        { content: { [Op.iLike]: `%${search}%` } },
+        { sourceType: { [Op.iLike]: `%${search}%` } }
       ];
     }
 
@@ -92,7 +93,8 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
     if (search) {
       where[Op.or] = [
         { title: { [Op.iLike]: `%${search}%` } },
-        { content: { [Op.iLike]: `%${search}%` } }
+        { content: { [Op.iLike]: `%${search}%` } },
+        { sourceType: { [Op.iLike]: `%${search}%` } }
       ];
       if (status !== 'all') {
         where = {
@@ -101,7 +103,8 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
             {
               [Op.or]: [
                 { title: { [Op.iLike]: `%${search}%` } },
-                { content: { [Op.iLike]: `%${search}%` } }
+                { content: { [Op.iLike]: `%${search}%` } },
+                { sourceType: { [Op.iLike]: `%${search}%` } }
               ]
             }
           ]
