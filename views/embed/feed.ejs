@@ -211,20 +211,20 @@
             <% } %>
             
             <div class="feed-card-meta">
-              <span class="feed-card-source source-<%= post.sourceType %>">
-                <% if (post.sourceType === 'youtube') { %>
-                  YouTube
-                <% } else if (post.sourceType === 'twitter') { %>
-                  X/Twitter
-                <% } else if (post.sourceType === 'instagram') { %>
-                  Instagram
-                <% } else { %>
-                  Original
+              <% if (post.sourceType !== 'original') { %>
+                <span class="feed-card-source source-<%= post.sourceType %>">
+                  <% if (post.sourceType === 'youtube') { %>
+                    YouTube
+                  <% } else if (post.sourceType === 'twitter') { %>
+                    X/Twitter
+                  <% } else if (post.sourceType === 'instagram') { %>
+                    Instagram
+                  <% } %>
+                </span>
+                
+                <% if (post.sourceUrl) { %>
+                  <a href="<%= post.sourceUrl %>" target="_blank" rel="noopener noreferrer">View Source</a>
                 <% } %>
-              </span>
-              
-              <% if (post.sourceUrl && post.sourceType !== 'original') { %>
-                <a href="<%= post.sourceUrl %>" target="_blank" rel="noopener noreferrer">View Source</a>
               <% } %>
               
               <span style="margin-left: auto;">
