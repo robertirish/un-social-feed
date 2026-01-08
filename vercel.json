@@ -12,9 +12,7 @@
           "config/**",
           "models/**",
           "routes/**",
-          "middleware/**",
-          "node_modules/pg/**",
-          "node_modules/pg-hstore/**"
+          "middleware/**"
         ]
       }
     }
@@ -24,5 +22,8 @@
       "src": "/(.*)",
       "dest": "/api/index.js"
     }
-  ]
+  ],
+  "env": {
+    "VERCEL": "1"
+  }
 }
