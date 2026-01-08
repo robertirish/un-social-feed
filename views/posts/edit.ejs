@@ -44,27 +44,38 @@
               </div>
             </div>
             
+            <% if (post.sourceType !== 'original') { %>
             <div class="card mb-4">
               <div class="card-header">
                 <h6 class="mb-0">Source</h6>
               </div>
               <div class="card-body">
+                <input type="hidden" name="sourceType" value="<%= post.sourceType %>">
+                
                 <div class="mb-3">
-                  <label for="sourceType" class="form-label">Source Type</label>
-                  <select class="form-select" id="sourceType" name="sourceType">
-                    <option value="original" <%= post.sourceType === 'original' ? 'selected' : '' %>>Original Post</option>
-                    <option value="youtube" <%= post.sourceType === 'youtube' ? 'selected' : '' %>>YouTube Video</option>
-                    <option value="twitter" <%= post.sourceType === 'twitter' ? 'selected' : '' %>>Twitter/X Post</option>
-                    <option value="instagram" <%= post.sourceType === 'instagram' ? 'selected' : '' %>>Instagram Post</option>
-                  </select>
+                  <label class="form-label">Source Type</label>
+                  <div>
+                    <span class="badge source-<%= post.sourceType %>" style="font-size: 0.875rem;">
+                      <% if (post.sourceType === 'youtube') { %>
+                        <i class="bi bi-youtube me-1"></i>YouTube
+                      <% } else if (post.sourceType === 'twitter') { %>
+                        <i class="bi bi-twitter-x me-1"></i>Twitter/X
+                      <% } else if (post.sourceType === 'instagram') { %>
+                        <i class="bi bi-instagram me-1"></i>Instagram
+                      <% } %>
+                    </span>
+                  </div>
                 </div>
                 
-                <div class="mb-3" id="sourceUrlGroup" style="display: <%= post.sourceType !== 'original' ? 'block' : 'none' %>;">
+                <div class="mb-0">
                   <label for="sourceUrl" class="form-label">Source URL</label>
                   <input type="url" class="form-control" id="sourceUrl" name="sourceUrl" value="<%= post.sourceUrl || '' %>" placeholder="Paste the URL here">
                 </div>
               </div>
             </div>
+            <% } else { %>
+              <input type="hidden" name="sourceType" value="original">
+            <% } %>
             
             <div class="d-flex justify-content-between">
               <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
@@ -160,14 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update hidden input on form submit
   document.getElementById('post-form').addEventListener('submit', function() {
     document.getElementById('content').value = quill.root.innerHTML;
-  });
-  
-  // Source type change handler
-  const sourceType = document.getElementById('sourceType');
-  const sourceUrlGroup = document.getElementById('sourceUrlGroup');
-  
-  sourceType.addEventListener('change', function() {
-    sourceUrlGroup.style.display = this.value !== 'original' ? 'block' : 'none';
   });
 });
 </script>
