@@ -4,22 +4,6 @@
     <span style="line-height: 1; padding-top: 2px;">UN Social Feed</span>
   </div>
   
-  <!-- User info at top with logout -->
-  <div class="sidebar-user px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center">
-      <div class="user-avatar me-2">
-        <%= user ? user.name.charAt(0).toUpperCase() : '?' %>
-      </div>
-      <div>
-        <div class="small fw-medium"><%= user ? user.name : 'Guest' %></div>
-        <div class="small text-muted text-capitalize"><%= user ? user.role : '' %></div>
-      </div>
-    </div>
-    <a href="/auth/logout" class="btn btn-sm btn-outline-secondary" title="Logout">
-      <i class="bi bi-box-arrow-right"></i>
-    </a>
-  </div>
-  
   <nav class="sidebar-nav flex-grow-1">
     <a href="/admin" class="nav-link <%= typeof active !== 'undefined' && active === 'dashboard' ? 'active' : '' %>">
       <i class="bi bi-house"></i> Dashboard
@@ -83,10 +67,34 @@
       </a>
     <% } %>
   </nav>
+  
+  <!-- User info and logout at bottom -->
+  <div class="sidebar-footer">
+    <div class="sidebar-user d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="user-avatar me-2">
+          <%= user ? user.name.charAt(0).toUpperCase() : '?' %>
+        </div>
+        <div>
+          <div class="small fw-medium"><%= user ? user.name : 'Guest' %></div>
+          <div class="small text-muted text-capitalize"><%= user ? user.role : '' %></div>
+        </div>
+      </div>
+      <a href="/auth/logout" class="btn btn-sm btn-outline-secondary" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
 </div>
 
 <style>
+  .sidebar-footer {
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+  }
+  
   .sidebar-user {
+    padding: 0.75rem 1rem;
     background: var(--bg-light);
   }
   
