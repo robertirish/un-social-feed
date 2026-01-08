@@ -49,7 +49,7 @@ const Post = sequelize.define('Post', {
     allowNull: true
   },
   imageUrl: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true
   },
   sourceType: {

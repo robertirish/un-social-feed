@@ -89,8 +89,8 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Sync database
-sequelize.sync({ alter: process.env.NODE_ENV === 'development' })
+// Sync database - use alter to update schema
+sequelize.sync({ alter: true })
   .then(() => {
     console.log('Database connected and synced');
   })
