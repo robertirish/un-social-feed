@@ -85,13 +85,17 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Sync database and start server
+// Start server first, then sync database
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Sync database after server starts
 sequelize.sync({ alter: process.env.NODE_ENV === 'development' })
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    console.log('Database connected and synced');
   })
   .catch(err => {
-    console.error('Unable to connect to database:', err);
+    console.error('Database connection error:', err.message);
+    // Don't crash - let health checks show the error
   });

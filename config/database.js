@@ -4,7 +4,7 @@ const path = require('path');
 let sequelize;
 
 // Use PostgreSQL in production (Railway), SQLite for local development
-if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('postgresql')) {
+if (process.env.DATABASE_URL && (process.env.DATABASE_URL.startsWith('postgresql') || process.env.DATABASE_URL.startsWith('postgres'))) {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
