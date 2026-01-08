@@ -61,7 +61,13 @@
           <% if (posts.length === 0) { %>
             <div class="text-center py-5">
               <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-              <p class="text-muted mt-3 mb-0">No posts yet</p>
+              <p class="text-muted mt-3 mb-0">
+                <% if (search) { %>
+                  No posts found matching "<%= search %>"
+                <% } else { %>
+                  No posts yet
+                <% } %>
+              </p>
             </div>
           <% } else { %>
             <% if (pinnedPosts.length > 0) { %>
