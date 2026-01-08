@@ -4,6 +4,18 @@ const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
+// Multer error handler wrapper
+const handleUpload = (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      console.error('Upload error:', err);
+      req.flash('error_msg', `Upload error: ${err.message}`);
+      return res.redirect('back');
+    }
+    next();
+  });
+};
+
 // Create post form
 router.get('/create', ensureAuthenticated, (req, res) => {
   res.render('posts/create', { 
@@ -13,7 +25,7 @@ router.get('/create', ensureAuthenticated, (req, res) => {
 });
 
 // Create post handler
-router.post('/create', ensureAuthenticated, upload.single('image'), async (req, res) => {
+router.post('/create', ensureAuthenticated, handleUpload, async (req, res) => {
   try {
     const { title, content, sourceType, sourceUrl } = req.body;
     const isManager = ['editor', 'admin'].includes(req.user.role);
@@ -59,8 +71,8 @@ router.post('/create', ensureAuthenticated, upload.single('image'), async (req, 
       : 'Post created and submitted for review');
     res.redirect('/admin');
   } catch (err) {
-    console.error(err);
-    req.flash('error_msg', 'Error creating post');
+    console.error('Error creating post:', err);
+    req.flash('error_msg', `Error creating post: ${err.message}`);
     res.redirect('/posts/create');
   }
 });
@@ -95,7 +107,7 @@ router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
 });
 
 // Update post handler
-router.post('/:id/edit', ensureAuthenticated, upload.single('image'), async (req, res) => {
+router.post('/:id/edit', ensureAuthenticated, handleUpload, async (req, res) => {
   try {
     const post = await Post.findByPk(req.params.id);
     
@@ -141,8 +153,8 @@ router.post('/:id/edit', ensureAuthenticated, upload.single('image'), async (req
     req.flash('success_msg', 'Post updated');
     res.redirect('/admin');
   } catch (err) {
-    console.error(err);
-    req.flash('error_msg', 'Error updating post');
+    console.error('Error updating post:', err);
+    req.flash('error_msg', `Error updating post: ${err.message}`);
     res.redirect('/admin');
   }
 });
