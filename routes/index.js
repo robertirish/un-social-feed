@@ -33,187 +33,206 @@ router.get('/health', async (req, res) => {
   }
 });
 
-// Seed endpoint - visit /seed/unsocialfeed2026 to populate database
+// Seed endpoint - visit /seed/unsocialfeed2026 to populate database with UN Peace & Security content
 router.get('/seed/:key', async (req, res) => {
   if (req.params.key !== 'unsocialfeed2026') {
     return res.status(403).json({ error: 'Invalid seed key' });
   }
   
   try {
-    // Check if already seeded
-    const existingPosts = await Post.count();
-    if (existingPosts > 0) {
-      return res.json({ 
-        message: 'Database already has posts. Delete them first if you want to reseed.',
-        postCount: existingPosts
-      });
-    }
-    
     const salt = await bcrypt.genSalt(10);
     
     // Create or find admin user
-    let admin = await User.findOne({ where: { email: 'admin@example.com' } });
+    let admin = await User.findOne({ where: { email: 'robert.f.irish@gmail.com' } });
     if (!admin) {
-      const hashedPassword = await bcrypt.hash('admin123', salt);
+      const hashedPassword = await bcrypt.hash('U8zx4.o68wYFQs*g9Aw@', salt);
       admin = await User.create({
-        name: 'Admin',
-        email: 'admin@example.com',
+        name: 'Robert Irish',
+        email: 'robert.f.irish@gmail.com',
         password: hashedPassword,
         role: 'admin'
       });
     }
     
-    // Create or find demo user
-    let regularUser = await User.findOne({ where: { email: 'user@example.com' } });
-    if (!regularUser) {
-      const userPassword = await bcrypt.hash('user123', salt);
-      regularUser = await User.create({
-        name: 'Demo User',
-        email: 'user@example.com',
-        password: userPassword,
-        role: 'user'
-      });
-    }
+    // Delete all existing posts
+    await Post.destroy({ where: {} });
     
-    // Create sample posts
-    await Post.bulkCreate([
+    // UN Peace and Security posts
+    const posts = [
+      // YouTube posts
       {
-        title: 'UN Climate Action Summit 2026',
-        content: '<p>World leaders gather to discuss ambitious climate targets and sustainable development goals for the next decade.</p><p>Key topics include renewable energy transitions, climate finance, and nature-based solutions.</p>',
+        title: 'UN Peacekeeping: 75 Years of Service and Sacrifice',
+        content: '<p>Since 1948, UN Peacekeepers have served in over 70 operations worldwide. This documentary highlights their unwavering commitment to peace and the sacrifices made to protect civilians in conflict zones.</p>',
+        sourceType: 'youtube',
+        sourceUrl: 'https://www.youtube.com/watch?v=E_os36KyRdY',
+        sourceId: 'E_os36KyRdY',
+        imageUrl: 'https://img.youtube.com/vi/E_os36KyRdY/hqdefault.jpg',
         status: 'approved',
-        sourceType: 'original',
         isPinned: true,
         sortOrder: 0,
         authorId: admin.id
       },
       {
-        title: 'Secretary-General Address on Global Peace',
-        content: '<p>Watch the Secretary-General\'s powerful message on international cooperation and the path toward lasting peace.</p>',
-        status: 'approved',
+        title: 'Security Council Briefing on International Peace',
+        content: '<p>The UN Security Council convenes to address pressing threats to international peace and security. Watch the latest briefing on global conflict resolution efforts.</p>',
         sourceType: 'youtube',
-        sourceUrl: 'https://www.youtube.com/watch?v=7UnvnqGTXqk',
-        sourceId: '7UnvnqGTXqk',
-        imageUrl: 'https://img.youtube.com/vi/7UnvnqGTXqk/hqdefault.jpg',
-        isPinned: true,
+        sourceUrl: 'https://www.youtube.com/watch?v=9CdY7t5VKIY',
+        sourceId: '9CdY7t5VKIY',
+        imageUrl: 'https://img.youtube.com/vi/9CdY7t5VKIY/hqdefault.jpg',
+        status: 'approved',
         sortOrder: 1,
         authorId: admin.id
       },
       {
-        title: 'Sustainable Development Goals Progress Report',
-        content: '<p>The latest data shows significant progress on several SDGs, while highlighting areas requiring accelerated action.</p><ul><li>Goal 7: Clean Energy - 30% increase in renewable capacity</li><li>Goal 13: Climate Action - More countries adopting net-zero targets</li><li>Goal 4: Education - Improved global literacy rates</li></ul>',
+        title: 'Women in Peacekeeping: Breaking Barriers',
+        content: '<p>Women peacekeepers play a crucial role in UN missions. They build trust with local communities and are essential to achieving sustainable peace.</p>',
+        sourceType: 'youtube',
+        sourceUrl: 'https://www.youtube.com/watch?v=YXwqVgx-sxE',
+        sourceId: 'YXwqVgx-sxE',
+        imageUrl: 'https://img.youtube.com/vi/YXwqVgx-sxE/hqdefault.jpg',
         status: 'approved',
-        sourceType: 'original',
         sortOrder: 2,
         authorId: admin.id
       },
       {
-        title: 'World Humanitarian Day 2026',
-        content: '<p>Honoring the brave aid workers who risk their lives to help others. This year\'s theme focuses on climate-related humanitarian crises.</p>',
+        title: 'Protecting Civilians in Armed Conflict',
+        content: '<p>Learn about the UN\'s mandate to protect civilians caught in the crossfire of armed conflicts around the world.</p>',
+        sourceType: 'youtube',
+        sourceUrl: 'https://www.youtube.com/watch?v=kGSs5WD9K0Q',
+        sourceId: 'kGSs5WD9K0Q',
+        imageUrl: 'https://img.youtube.com/vi/kGSs5WD9K0Q/hqdefault.jpg',
         status: 'approved',
-        sourceType: 'original',
         sortOrder: 3,
         authorId: admin.id
       },
+      // Twitter/X posts
       {
-        title: 'UN Peacekeeping Operations Update',
-        content: '<p>Blue helmets continue their vital work in maintaining peace and security around the world. Over 87,000 personnel are currently deployed across 12 missions.</p>',
+        title: 'UN Peacekeeping Day 2024',
+        content: '<p>On International Day of UN Peacekeepers, we honour the service and sacrifice of peacekeepers who have lost their lives in the cause of peace. #PKDay</p>',
+        sourceType: 'twitter',
+        sourceUrl: 'https://twitter.com/UNPeacekeeping/status/1795123456789012345',
+        sourceId: '1795123456789012345',
+        imageUrl: 'https://peacekeeping.un.org/sites/default/files/styles/1200x500/public/field/image/pk_day_2024.jpg',
         status: 'approved',
-        sourceType: 'youtube',
-        sourceUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        sourceId: 'dQw4w9WgXcQ',
-        imageUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
         sortOrder: 4,
         authorId: admin.id
       },
       {
-        title: 'UNICEF: Every Child Deserves a Future',
-        content: '<p>New initiative launched to ensure access to education, healthcare, and nutrition for children in conflict zones.</p>',
+        title: 'Security Council Addresses Global Threats',
+        content: '<p>The Security Council held an open debate on maintaining international peace and security. Member states emphasized the importance of multilateral cooperation. #UNSC</p>',
+        sourceType: 'twitter',
+        sourceUrl: 'https://twitter.com/UN/status/1798765432109876543',
+        sourceId: '1798765432109876543',
+        imageUrl: 'https://www.un.org/sites/un2.un.org/files/2021/09/security-council.jpg',
         status: 'approved',
-        sourceType: 'original',
         sortOrder: 5,
         authorId: admin.id
       },
       {
-        title: 'International Day of Peace',
-        content: '<p>September 21st marks the International Day of Peace. This year, communities worldwide are organizing events promoting dialogue and reconciliation.</p>',
+        title: 'Blue Helmets Deploy to New Mission',
+        content: '<p>UN peacekeepers begin deployment to support peace efforts. Their mission: protect civilians, support political processes, and help build lasting peace.</p>',
+        sourceType: 'twitter',
+        sourceUrl: 'https://twitter.com/UNPeacekeeping/status/1801234567890123456',
+        sourceId: '1801234567890123456',
+        imageUrl: 'https://peacekeeping.un.org/sites/default/files/styles/1200x500/public/blue_helmets_deployment.jpg',
         status: 'approved',
-        sourceType: 'original',
         sortOrder: 6,
         authorId: admin.id
       },
+      // Instagram posts
       {
-        title: 'WHO Global Health Update',
-        content: '<p>The World Health Organization releases new guidelines on pandemic preparedness and health system strengthening.</p>',
+        title: 'Peacekeepers Training Exercise',
+        content: '<p>UN peacekeepers undergo rigorous training before deployment. From conflict resolution to first aid, our troops are prepared for any challenge.</p>',
+        sourceType: 'instagram',
+        sourceUrl: 'https://www.instagram.com/p/C8abc123def/',
+        sourceId: 'C8abc123def',
+        imageUrl: 'https://peacekeeping.un.org/sites/default/files/styles/1200x500/public/training_exercise.jpg',
         status: 'approved',
-        sourceType: 'youtube',
-        sourceUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
-        sourceId: '5qap5aO4i9A',
-        imageUrl: 'https://img.youtube.com/vi/5qap5aO4i9A/hqdefault.jpg',
         sortOrder: 7,
         authorId: admin.id
       },
       {
-        title: 'Ocean Conservation Initiative',
-        content: '<p>UN Environment Programme announces expanded marine protected areas covering 30% of the world\'s oceans by 2030.</p>',
+        title: 'Community Engagement in Peacekeeping',
+        content: '<p>Building trust with local communities is essential to peacekeeping success. Our personnel work alongside civilians to foster dialogue and reconciliation.</p>',
+        sourceType: 'instagram',
+        sourceUrl: 'https://www.instagram.com/p/C9xyz789ghi/',
+        sourceId: 'C9xyz789ghi',
+        imageUrl: 'https://peacekeeping.un.org/sites/default/files/styles/1200x500/public/community_engagement.jpg',
         status: 'approved',
-        sourceType: 'original',
         sortOrder: 8,
         authorId: admin.id
       },
+      // Original posts
       {
-        title: 'Gender Equality Progress',
-        content: '<p>UN Women reports on advances in women\'s representation in leadership positions globally. More work remains to close the gender gap.</p>',
-        status: 'approved',
+        title: 'The Role of the Security Council in Global Peace',
+        content: '<p>The UN Security Council has primary responsibility for maintaining international peace and security. Its five permanent members and ten elected members work to address conflicts before they escalate.</p><p>Through resolutions, sanctions, and peacekeeping mandates, the Council remains the cornerstone of the international security architecture.</p>',
         sourceType: 'original',
+        imageUrl: 'https://www.un.org/sites/un2.un.org/files/2021/09/security-council.jpg',
+        status: 'approved',
+        isPinned: true,
         sortOrder: 9,
         authorId: admin.id
       },
       {
-        title: 'Community Clean-up Initiative',
-        content: '<p>Our local community organized a beach clean-up event. Over 200 volunteers participated and collected 500kg of plastic waste!</p>',
-        status: 'pending',
+        title: 'Disarmament: Building a Safer World',
+        content: '<p>The UN continues to lead global efforts on disarmament and non-proliferation. From nuclear weapons to small arms, reducing the availability of weapons is crucial to preventing conflict.</p><p>The Office for Disarmament Affairs supports multilateral negotiations and promotes international norms against weapons of mass destruction.</p>',
         sourceType: 'original',
+        imageUrl: 'https://www.un.org/disarmament/wp-content/uploads/2020/01/unoda-homepage-banner.jpg',
+        status: 'approved',
         sortOrder: 10,
-        authorId: regularUser.id
+        authorId: admin.id
       },
       {
-        title: 'Youth Climate March Photo',
-        content: '<p>Photos from the youth-led climate demonstration in our city. The next generation is demanding action!</p>',
-        status: 'pending',
+        title: 'Mediation and Conflict Prevention',
+        content: '<p>Prevention is better than cure. The UN\'s Department of Political and Peacebuilding Affairs works to prevent conflicts through early warning, mediation, and diplomatic engagement.</p><p>Special envoys and mediators are deployed worldwide to facilitate dialogue between parties and find peaceful solutions to disputes.</p>',
         sourceType: 'original',
+        imageUrl: 'https://peacemaker.un.org/sites/peacemaker.un.org/files/styles/hero_image/public/mediation_support.jpg',
+        status: 'approved',
         sortOrder: 11,
-        authorId: regularUser.id
+        authorId: admin.id
       },
       {
-        title: 'Inspiring TED Talk on Sustainability',
-        content: '<p>This talk really changed my perspective on sustainable living. Highly recommend watching!</p>',
-        status: 'pending',
-        sourceType: 'youtube',
-        sourceUrl: 'https://www.youtube.com/watch?v=8MqFpN3RP9A',
-        sourceId: '8MqFpN3RP9A',
-        imageUrl: 'https://img.youtube.com/vi/8MqFpN3RP9A/hqdefault.jpg',
-        sortOrder: 12,
-        authorId: regularUser.id
-      },
-      {
-        title: 'Off-topic Content Example',
-        content: '<p>This post was rejected because it did not align with UN Social Feed guidelines.</p>',
-        status: 'rejected',
+        title: 'Peacebuilding After Conflict',
+        content: '<p>Ending a war is only the first step. The UN Peacebuilding Commission supports countries emerging from conflict to ensure they don\'t relapse into violence.</p><p>From institution building to reconciliation programs, peacebuilding addresses the root causes of conflict and builds foundations for lasting peace.</p>',
         sourceType: 'original',
+        imageUrl: 'https://www.un.org/peacebuilding/sites/www.un.org.peacebuilding/files/styles/hero/public/pbc_banner.jpg',
+        status: 'approved',
+        sortOrder: 12,
+        authorId: admin.id
+      },
+      {
+        title: 'Counter-Terrorism: A Global Challenge',
+        content: '<p>The UN Office of Counter-Terrorism coordinates the organization\'s efforts against terrorism. The UN Global Counter-Terrorism Strategy provides a framework for member states to work together.</p><p>Addressing conditions conducive to terrorism while upholding human rights remains central to the UN approach.</p>',
+        sourceType: 'original',
+        imageUrl: 'https://www.un.org/counterterrorism/sites/www.un.org.counterterrorism/files/styles/hero/public/unoct_hero_banner.jpg',
+        status: 'approved',
         sortOrder: 13,
-        authorId: regularUser.id
+        authorId: admin.id
+      },
+      {
+        title: 'International Humanitarian Law and Armed Conflict',
+        content: '<p>Even in war, there are rules. International humanitarian law protects those who are not participating in hostilities and restricts the means and methods of warfare.</p><p>The UN works to promote respect for these laws and holds violators accountable through international justice mechanisms.</p>',
+        sourceType: 'original',
+        imageUrl: 'https://www.un.org/sites/un2.un.org/files/international_law.jpg',
+        status: 'approved',
+        sortOrder: 14,
+        authorId: admin.id
       }
-    ]);
+    ];
+    
+    await Post.bulkCreate(posts);
     
     res.json({ 
       success: true, 
-      message: 'Database seeded successfully!',
-      posts: 14,
-      users: 2,
-      credentials: {
-        admin: { email: 'admin@example.com', password: 'admin123' },
-        user: { email: 'user@example.com', password: 'user123' }
-      }
+      message: 'Database seeded with UN Peace & Security content!',
+      posts: posts.length,
+      breakdown: {
+        youtube: 4,
+        twitter: 3,
+        instagram: 2,
+        original: 6
+      },
+      admin: 'robert.f.irish@gmail.com'
     });
   } catch (err) {
     console.error('Seed error:', err);
