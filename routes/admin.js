@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts, isAdmin } = require('../middleware/auth');
-const { Op } = require('sequelize');
+const { Op, fn, col, where: seqWhere, cast } = require('sequelize');
 
 const POSTS_PER_PAGE = 10;
 
@@ -24,7 +24,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
       whereClause[Op.or] = [
         { title: { [Op.iLike]: `%${search}%` } },
         { content: { [Op.iLike]: `%${search}%` } },
-        { sourceType: { [Op.iLike]: `%${search}%` } }
+        seqWhere(cast(col('sourceType'), 'TEXT'), { [Op.iLike]: `%${search}%` })
       ];
     }
 
@@ -91,24 +91,21 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
     
     // Add search filter
     if (search) {
-      where[Op.or] = [
+      const searchConditions = [
         { title: { [Op.iLike]: `%${search}%` } },
         { content: { [Op.iLike]: `%${search}%` } },
-        { sourceType: { [Op.iLike]: `%${search}%` } }
+        seqWhere(cast(col('sourceType'), 'TEXT'), { [Op.iLike]: `%${search}%` })
       ];
+      
       if (status !== 'all') {
         where = {
           [Op.and]: [
             { status },
-            {
-              [Op.or]: [
-                { title: { [Op.iLike]: `%${search}%` } },
-                { content: { [Op.iLike]: `%${search}%` } },
-                { sourceType: { [Op.iLike]: `%${search}%` } }
-              ]
-            }
+            { [Op.or]: searchConditions }
           ]
         };
+      } else {
+        where[Op.or] = searchConditions;
       }
     }
     
