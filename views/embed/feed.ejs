@@ -32,7 +32,7 @@
 
     .scroll-track {
       display: flex;
-      gap: 0.75rem;
+      gap: 1rem;
       height: 100%;
       width: max-content;
       will-change: transform;
@@ -43,7 +43,7 @@
     }
 
     .scroll-wrapper:hover .scroll-track.animate {
-      animation-play-state: paused;
+      animation-duration: var(--duration-slow, 180s);
     }
 
     @keyframes scroll-left {
@@ -56,7 +56,7 @@
     .scroll-column {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 1rem;
       flex-shrink: 0;
       height: 100%;
     }
@@ -66,7 +66,7 @@
     .feed-card {
       position: relative;
       width: 300px;
-      border-radius: 10px;
+      border-radius: 0;
       overflow: hidden;
       background: #f0f0f0;
       flex-shrink: 0;
@@ -300,7 +300,7 @@
                   const ratio = col.length === 1 ? 1 : pattern[rowIdx];
                   const heightCalc = col.length === 1
                     ? 'calc(100vh - 1.5rem)'
-                    : 'calc(' + ratio + ' * (100vh - 2.25rem))';
+                    : 'calc(' + ratio + ' * (100vh - 2.5rem))';
                 %>
                 <div class="feed-card<%= hasMedia ? '' : ' no-media' %>" style="height:<%= heightCalc %>">
                   <% if (hasMedia) { %>
@@ -350,9 +350,12 @@
 
         if (contentWidth <= viewportWidth) return;
 
-        var speed = 40;
+        var speed = 60;
+        var hoverSpeed = 20;
         var duration = contentWidth / speed;
+        var durationSlow = contentWidth / hoverSpeed;
         track.style.setProperty('--duration', duration + 's');
+        track.style.setProperty('--duration-slow', durationSlow + 's');
         track.classList.add('animate');
       }
 
