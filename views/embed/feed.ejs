@@ -18,8 +18,8 @@
       height: 85vh;
       overflow: hidden;
       font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0a0a0a;
-      color: #fff;
+      background: #fff;
+      color: #333;
     }
 
     /* ── Scroll wrapper ─────────────────────────────── */
@@ -66,11 +66,11 @@
     .feed-card {
       position: relative;
       width: 300px;
-      height: calc((85vh - 1.5rem) / 2);
       border-radius: 10px;
       overflow: hidden;
-      background: #1a1a1a;
+      background: #f0f0f0;
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     /* Full-bleed media layer */
@@ -164,6 +164,11 @@
       z-index: 4;
     }
 
+    /* Linked titles turn UN Blue on hover */
+    .feed-card.has-link:hover .feed-card-title {
+      color: #009EDB;
+    }
+
     /* No-media cards (text-only originals) */
     .feed-card.no-media {
       background: linear-gradient(135deg, #009EDB 0%, #005B8E 100%);
@@ -214,14 +219,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #555;
+      color: #999;
     }
 
     .empty-state svg {
       width: 64px;
       height: 64px;
       margin-bottom: 1rem;
-      opacity: 0.4;
+      opacity: 0.3;
     }
 
     .empty-state p {
@@ -241,7 +246,7 @@
         flex-direction: row;
       }
       .feed-card {
-        height: calc(85vh - 1rem);
+        height: calc(85vh - 1rem) !important;
         width: 260px;
       }
     }
@@ -262,13 +267,22 @@
       for (let i = 0; i < posts.length; i += ROWS) {
         columns.push(posts.slice(i, i + ROWS));
       }
+      const heightPatterns = [
+        [0.58, 0.42], [0.40, 0.60], [0.52, 0.48],
+        [0.63, 0.37], [0.45, 0.55], [0.55, 0.45],
+        [0.38, 0.62], [0.60, 0.40], [0.50, 0.50],
+        [0.42, 0.58], [0.62, 0.38], [0.48, 0.52],
+      ];
     %>
     <div class="scroll-wrapper">
       <div class="scroll-track" id="scrollTrack">
         <% for (let copy = 0; copy < 2; copy++) { %>
-          <% columns.forEach(col => { %>
+          <% columns.forEach((col, colIdx) => { %>
+            <%
+              const pattern = heightPatterns[colIdx % heightPatterns.length];
+            %>
             <div class="scroll-column">
-              <% col.forEach(post => { %>
+              <% col.forEach((post, rowIdx) => { %>
                 <%
                   const cardLink = post.linkUrl
                     || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null);
@@ -277,8 +291,12 @@
                     : null;
                   const isYouTube = post.sourceType === 'youtube' && post.sourceId;
                   const hasMedia = !!(imgSrc || isYouTube);
+                  const ratio = col.length === 1 ? 1 : pattern[rowIdx];
+                  const heightCalc = col.length === 1
+                    ? 'calc(85vh - 1rem)'
+                    : 'calc(' + ratio + ' * (85vh - 1.5rem))';
                 %>
-                <div class="feed-card<%= hasMedia ? '' : ' no-media' %>">
+                <div class="feed-card<%= hasMedia ? '' : ' no-media' %><%= cardLink ? ' has-link' : '' %>" style="height:<%= heightCalc %>">
                   <% if (hasMedia) { %>
                     <div class="feed-card-media">
                       <img
