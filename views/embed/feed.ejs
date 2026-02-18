@@ -317,14 +317,14 @@
                   <% } %>
 
                   <div class="feed-card-overlay">
-                    <h3 class="feed-card-title"><% if (cardLink) { %><a href="<%= cardLink %>" target="_blank" rel="noopener noreferrer"><%= post.title %></a><% } else { %><%= post.title %><% } %></h3>
+                    <h3 class="feed-card-title"><% if (cardLink) { %><a href="<%= cardLink %>" rel="noopener noreferrer"><%= post.title %></a><% } else { %><%= post.title %><% } %></h3>
                     <% if (post.content && post.content !== '<p><br></p>') { %>
                       <div class="feed-card-content"><%- post.content %></div>
                     <% } %>
                   </div>
 
                   <% if (cardLink) { %>
-                    <a href="<%= cardLink %>" target="_blank" rel="noopener noreferrer" class="feed-card-link" aria-label="<%= post.title %>"></a>
+                    <a href="<%= cardLink %>" rel="noopener noreferrer" class="feed-card-link" aria-label="<%= post.title %>"></a>
                   <% } %>
                 </div>
               <% }); %>

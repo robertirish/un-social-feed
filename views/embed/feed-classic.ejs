@@ -189,7 +189,7 @@
           <% } else if (post.imageUrl) { %>
             <% const imgLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null); %>
             <% if (imgLink) { %>
-              <a href="<%= imgLink %>" target="_blank" rel="noopener noreferrer">
+              <a href="<%= imgLink %>" rel="noopener noreferrer">
                 <img
                   src="<%= post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl %>"
                   alt="<%= post.title %>"
@@ -211,7 +211,7 @@
             <% const titleLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null); %>
             <% if (titleLink) { %>
               <h3 class="feed-card-title">
-                <a href="<%= titleLink %>" target="_blank" rel="noopener noreferrer"><%= post.title %></a>
+                <a href="<%= titleLink %>" rel="noopener noreferrer"><%= post.title %></a>
               </h3>
             <% } else { %>
               <h3 class="feed-card-title"><%= post.title %></h3>
@@ -285,7 +285,7 @@
         var imgSrc = post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl;
         var imgLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null);
         if (imgLink) {
-          mediaHTML = '<a href="' + imgLink + '" target="_blank" rel="noopener noreferrer"><img src="' + imgSrc + '" alt="' + post.title + '" class="feed-card-image" loading="lazy"></a>';
+          mediaHTML = '<a href="' + imgLink + '" rel="noopener noreferrer"><img src="' + imgSrc + '" alt="' + post.title + '" class="feed-card-image" loading="lazy"></a>';
         } else {
           mediaHTML = '<img src="' + imgSrc + '" alt="' + post.title + '" class="feed-card-image" loading="lazy">';
         }
@@ -294,7 +294,7 @@
       var titleLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null);
       var titleHTML = '';
       if (titleLink) {
-        titleHTML = '<h3 class="feed-card-title"><a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + post.title + '</a></h3>';
+        titleHTML = '<h3 class="feed-card-title"><a href="' + titleLink + '" rel="noopener noreferrer">' + post.title + '</a></h3>';
       } else {
         titleHTML = '<h3 class="feed-card-title">' + post.title + '</h3>';
       }
