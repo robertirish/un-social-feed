@@ -244,13 +244,9 @@
       }
     }
 
-    @media (max-height: 360px) {
-      .scroll-column {
-        flex-direction: row;
-      }
+    @media (max-height: 400px) {
       .feed-card {
-        height: calc(100vh - 1.5rem) !important;
-        width: 260px;
+        width: 220px;
       }
     }
   </style>
@@ -265,16 +261,16 @@
     </div>
   <% } else { %>
     <%
-      const ROWS = 2;
+      const ROWS = 3;
       const columns = [];
       for (let i = 0; i < posts.length; i += ROWS) {
         columns.push(posts.slice(i, i + ROWS));
       }
       const heightPatterns = [
-        [0.58, 0.42], [0.40, 0.60], [0.52, 0.48],
-        [0.63, 0.37], [0.45, 0.55], [0.55, 0.45],
-        [0.38, 0.62], [0.60, 0.40], [0.50, 0.50],
-        [0.42, 0.58], [0.62, 0.38], [0.48, 0.52],
+        [0.38, 0.32, 0.30], [0.30, 0.38, 0.32], [0.34, 0.30, 0.36],
+        [0.28, 0.36, 0.36], [0.36, 0.28, 0.36], [0.33, 0.34, 0.33],
+        [0.32, 0.36, 0.32], [0.36, 0.30, 0.34], [0.30, 0.34, 0.36],
+        [0.35, 0.30, 0.35], [0.30, 0.40, 0.30], [0.34, 0.32, 0.34],
       ];
     %>
     <div class="scroll-wrapper">
@@ -294,10 +290,9 @@
                     : null;
                   const isYouTube = post.sourceType === 'youtube' && post.sourceId;
                   const hasMedia = !!(imgSrc || isYouTube);
-                  const ratio = col.length === 1 ? 1 : pattern[rowIdx];
-                  const heightCalc = col.length === 1
-                    ? 'calc(100vh - 1.5rem)'
-                    : 'calc(' + ratio + ' * (100vh - 2.5rem))';
+                  const ratio = col.length === 1 ? 1 : (col.length === 2 ? [0.55, 0.45][rowIdx] : pattern[rowIdx]);
+                  const totalGap = (col.length - 1) + 1.5;
+                  const heightCalc = 'calc(' + ratio + ' * (100vh - ' + totalGap + 'rem))';
                 %>
                 <div class="feed-card<%= hasMedia ? '' : ' no-media' %>" style="height:<%= heightCalc %>">
                   <% if (hasMedia) { %>
