@@ -4,16 +4,48 @@ const { Post, User } = require('../models');
 
 const POSTS_PER_PAGE = 6;
 
-// Embeddable feed - self-contained HTML with lazy loading
+// Embeddable feed - horizontal auto-scrolling carousel
 router.get('/', async (req, res) => {
-  // Allow embedding in iframes
   res.removeHeader('X-Frame-Options');
   res.setHeader('Content-Security-Policy', "frame-ancestors *");
   
   try {
-    // Get initial batch of posts
+    const publicWhere = { status: 'approved', embedRestricted: false };
+
     const posts = await Post.findAll({
-      where: { status: 'approved' },
+      where: publicWhere,
+      include: [{ model: User, as: 'author', attributes: ['name'] }],
+      order: [
+        ['isPinned', 'DESC'],
+        ['sortOrder', 'ASC'],
+        ['createdAt', 'DESC']
+      ]
+    });
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+    res.render('embed/feed', {
+      title: 'Feed',
+      posts,
+      baseUrl,
+      layout: false
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading feed');
+  }
+});
+
+// Classic embeddable feed - vertical masonry with lazy loading
+router.get('/classic', async (req, res) => {
+  res.removeHeader('X-Frame-Options');
+  res.setHeader('Content-Security-Policy', "frame-ancestors *");
+
+  try {
+    const publicWhere = { status: 'approved', embedRestricted: false };
+
+    const posts = await Post.findAll({
+      where: publicWhere,
       include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [
         ['isPinned', 'DESC'],
@@ -23,20 +55,17 @@ router.get('/', async (req, res) => {
       limit: POSTS_PER_PAGE,
       offset: 0
     });
-    
-    // Get total count for pagination
-    const totalPosts = await Post.count({ where: { status: 'approved' } });
 
-    // Get base URL for assets
+    const totalPosts = await Post.count({ where: publicWhere });
     const baseUrl = `${req.protocol}://${req.get('host')}`;
 
-    res.render('embed/feed', {
+    res.render('embed/feed-classic', {
       title: 'Feed',
       posts,
       baseUrl,
       totalPosts,
       postsPerPage: POSTS_PER_PAGE,
-      layout: false // No layout wrapper
+      layout: false
     });
   } catch (err) {
     console.error(err);
@@ -53,8 +82,10 @@ router.get('/posts', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * POSTS_PER_PAGE;
     
+    const publicWhere = { status: 'approved', embedRestricted: false };
+
     const posts = await Post.findAll({
-      where: { status: 'approved' },
+      where: publicWhere,
       include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [
         ['isPinned', 'DESC'],
@@ -65,7 +96,7 @@ router.get('/posts', async (req, res) => {
       offset: offset
     });
     
-    const totalPosts = await Post.count({ where: { status: 'approved' } });
+    const totalPosts = await Post.count({ where: publicWhere });
     const hasMore = offset + posts.length < totalPosts;
     
     res.json({
@@ -76,7 +107,8 @@ router.get('/posts', async (req, res) => {
         imageUrl: p.imageUrl,
         sourceType: p.sourceType,
         sourceUrl: p.sourceUrl,
-        sourceId: p.sourceId
+        sourceId: p.sourceId,
+        linkUrl: p.linkUrl
       })),
       hasMore,
       page
@@ -87,14 +119,12 @@ router.get('/posts', async (req, res) => {
   }
 });
 
-// Generate iframe embed code
+// Generate iframe embed codes
 router.get('/code', async (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const embedCode = `<iframe src="${baseUrl}/embed" style="width:100%;min-height:600px;border:none;" title="Social Feed"></iframe>`;
-  
+
   res.render('embed/code', {
     title: 'Embed Code',
-    embedCode,
     baseUrl
   });
 });

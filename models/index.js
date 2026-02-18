@@ -68,6 +68,10 @@ const Post = sequelize.define('Post', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  linkUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   status: {
     type: DataTypes.ENUM('pending', 'approved', 'rejected'),
     defaultValue: 'pending'
@@ -79,6 +83,10 @@ const Post = sequelize.define('Post', {
   sortOrder: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  },
+  embedRestricted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   reviewedAt: {
     type: DataTypes.DATE,

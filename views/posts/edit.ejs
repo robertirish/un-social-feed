@@ -26,6 +26,12 @@
                 </div>
                 
                 <div class="mb-3">
+                  <label for="linkUrl" class="form-label">Link URL</label>
+                  <input type="url" class="form-control" id="linkUrl" name="linkUrl" value="<%= post.linkUrl || '' %>" placeholder="https://example.com">
+                  <div class="form-text">Clicking the title or image in the feed will open this URL</div>
+                </div>
+                
+                <div class="mb-3">
                   <label for="image" class="form-label">Image</label>
                   <% if (post.imageUrl) { %>
                     <div class="mb-2">

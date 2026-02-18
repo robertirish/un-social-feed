@@ -19,7 +19,13 @@
         <i class="bi bi-pin-fill text-warning" title="Pinned"></i>
       <% } %>
       <h6 class="mb-0"><%= post.title %></h6>
+      <% if (post.linkUrl) { %>
+        <a href="<%= post.linkUrl %>" target="_blank" rel="noopener noreferrer" class="text-muted" title="<%= post.linkUrl %>"><i class="bi bi-link-45deg"></i></a>
+      <% } %>
       <span class="badge badge-<%= post.status %> text-capitalize"><%= post.status %></span>
+      <% if (post.embedRestricted) { %>
+        <span class="badge bg-dark text-white" title="This video does not allow embedding"><i class="bi bi-exclamation-triangle-fill me-1"></i>Embed Restricted</span>
+      <% } %>
       
       <span class="source-icon source-<%= post.sourceType %>" title="<%= post.sourceType %>">
         <% if (post.sourceType === 'youtube') { %>
@@ -43,7 +49,7 @@
     <% if (isManager) { %>
       <% if (post.status !== 'approved') { %>
         <form action="/posts/<%= post.id %>/approve" method="POST" class="d-inline">
-          <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
+          <button type="submit" class="btn btn-sm btn-outline-success" title="<%= post.embedRestricted ? 'Cannot approve — embed restricted' : 'Approve' %>" <%= post.embedRestricted ? 'disabled' : '' %>>
             <i class="bi bi-check-lg"></i>
           </button>
         </form>

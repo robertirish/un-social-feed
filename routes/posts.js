@@ -4,6 +4,18 @@ const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
+// Check if a YouTube video allows embedding via oEmbed
+async function checkYouTubeEmbeddable(videoId) {
+  try {
+    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&format=json`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    return response.ok;
+  } catch (err) {
+    console.error('YouTube embed check failed:', err.message);
+    return true; // Allow on network errors so we don't block legitimate posts
+  }
+}
+
 // Multer error handler wrapper
 const handleUpload = (req, res, next) => {
   upload.single('image')(req, res, (err) => {
@@ -27,22 +39,23 @@ router.get('/create', ensureAuthenticated, (req, res) => {
 // Create post handler
 router.post('/create', ensureAuthenticated, handleUpload, async (req, res) => {
   try {
-    const { title, content, sourceType, sourceUrl } = req.body;
+    const { title, content, sourceType, sourceUrl, linkUrl } = req.body;
     const isManager = ['editor', 'admin'].includes(req.user.role);
     
     // Determine initial status
     const status = isManager ? 'approved' : 'pending';
     
-    // Get max sort order
-    const maxOrder = await Post.max('sortOrder') || 0;
+    // New posts get the lowest sortOrder so they appear first (sorted ASC)
+    const minOrder = await Post.min('sortOrder') ?? 0;
     
     const postData = {
       title,
       content,
       sourceType: sourceType || 'original',
       sourceUrl: sourceUrl || null,
+      linkUrl: linkUrl || null,
       status,
-      sortOrder: maxOrder + 1,
+      sortOrder: minOrder - 1,
       authorId: req.user.id
     };
 
@@ -64,11 +77,24 @@ router.post('/create', ensureAuthenticated, handleUpload, async (req, res) => {
       postData.imageUrl = upload.toDataUrl(req.file);
     }
 
+    // Check YouTube embeddability before saving
+    if (sourceType === 'youtube' && postData.sourceId) {
+      const embeddable = await checkYouTubeEmbeddable(postData.sourceId);
+      if (!embeddable) {
+        postData.embedRestricted = true;
+        postData.status = 'rejected';
+      }
+    }
+
     await Post.create(postData);
     
-    req.flash('success_msg', status === 'approved' 
-      ? 'Post created and published!' 
-      : 'Post created and submitted for review');
+    if (postData.embedRestricted) {
+      req.flash('error_msg', 'This YouTube video does not allow embedding and has been flagged as restricted.');
+    } else {
+      req.flash('success_msg', status === 'approved' 
+        ? 'Post created and published!' 
+        : 'Post created and submitted for review');
+    }
     res.redirect('/admin');
   } catch (err) {
     console.error('Error creating post:', err);
@@ -122,13 +148,14 @@ router.post('/:id/edit', ensureAuthenticated, handleUpload, async (req, res) => 
       return res.redirect('/admin');
     }
 
-    const { title, content, sourceType, sourceUrl } = req.body;
+    const { title, content, sourceType, sourceUrl, linkUrl } = req.body;
     
     const updateData = {
       title,
       content,
       sourceType: sourceType || 'original',
-      sourceUrl: sourceUrl || null
+      sourceUrl: sourceUrl || null,
+      linkUrl: linkUrl || null
     };
 
     // Handle image upload
@@ -143,14 +170,29 @@ router.post('/:id/edit', ensureAuthenticated, handleUpload, async (req, res) => 
       updateData.embedHtml = embedData.embedHtml;
     }
 
+    // Re-check YouTube embeddability if URL changed
+    if (sourceType === 'youtube' && updateData.sourceId) {
+      const embeddable = await checkYouTubeEmbeddable(updateData.sourceId);
+      updateData.embedRestricted = !embeddable;
+      if (!embeddable) {
+        updateData.status = 'rejected';
+      }
+    } else if (sourceType !== 'youtube') {
+      updateData.embedRestricted = false;
+    }
+
     // If non-manager edits, reset to pending
-    if (!isManager) {
+    if (!isManager && !updateData.embedRestricted) {
       updateData.status = 'pending';
     }
 
     await post.update(updateData);
     
-    req.flash('success_msg', 'Post updated');
+    if (updateData.embedRestricted) {
+      req.flash('error_msg', 'This YouTube video does not allow embedding and has been flagged as restricted.');
+    } else {
+      req.flash('success_msg', 'Post updated');
+    }
     res.redirect('/admin');
   } catch (err) {
     console.error('Error updating post:', err);
@@ -162,6 +204,12 @@ router.post('/:id/edit', ensureAuthenticated, handleUpload, async (req, res) => 
 // Approve post
 router.post('/:id/approve', canManagePosts, async (req, res) => {
   try {
+    const post = await Post.findByPk(req.params.id);
+    if (post && post.embedRestricted) {
+      req.flash('error_msg', 'Cannot approve: this post has an embed restriction. The source video does not allow embedding.');
+      return res.redirect('back');
+    }
+
     await Post.update(
       { 
         status: 'approved',

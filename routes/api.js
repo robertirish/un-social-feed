@@ -7,14 +7,14 @@ const { ensureAuthenticated, canManagePosts } = require('../middleware/auth');
 router.get('/posts', async (req, res) => {
   try {
     const posts = await Post.findAll({
-      where: { status: 'approved' },
+      where: { status: 'approved', embedRestricted: false },
       include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [
         ['isPinned', 'DESC'],
         ['sortOrder', 'ASC'],
         ['createdAt', 'DESC']
       ],
-      attributes: ['id', 'title', 'content', 'imageUrl', 'sourceType', 'sourceUrl', 'isPinned', 'createdAt']
+      attributes: ['id', 'title', 'content', 'imageUrl', 'sourceType', 'sourceUrl', 'linkUrl', 'isPinned', 'createdAt']
     });
 
     res.json({ success: true, posts });
@@ -57,6 +57,13 @@ router.post('/posts/:id/status', canManagePosts, async (req, res) => {
     
     if (!['pending', 'approved', 'rejected'].includes(status)) {
       return res.status(400).json({ success: false, error: 'Invalid status' });
+    }
+
+    if (status === 'approved') {
+      const post = await Post.findByPk(req.params.id);
+      if (post && post.embedRestricted) {
+        return res.status(400).json({ success: false, error: 'Cannot approve a post with embed restrictions' });
+      }
     }
 
     await Post.update(

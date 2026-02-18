@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UN Social Feed</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: transparent;
+      color: #333;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+
+    a {
+      color: #009EDB;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #0077A8;
+    }
+
+    .masonry-grid {
+      position: relative;
+    }
+
+    .feed-card {
+      position: absolute;
+      width: calc(33.333% - 0.667rem);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+    }
+
+    .feed-card.loading {
+      opacity: 0;
+    }
+
+    .feed-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    @media (max-width: 992px) {
+      .feed-card {
+        width: calc(50% - 0.5rem);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .feed-card {
+        width: 100%;
+      }
+    }
+
+    .feed-card-image {
+      width: 100%;
+      display: block;
+    }
+
+    .feed-card-body {
+      padding: 1rem;
+    }
+
+    .feed-card-title {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+
+    .feed-card-content {
+      font-size: 0.875rem;
+      color: #555;
+    }
+
+    .feed-card-content p {
+      margin-bottom: 0.5rem;
+    }
+
+    .feed-card-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .feed-card-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .feed-card-title a:hover {
+      color: #009EDB;
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #888;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .load-more-trigger {
+      height: 1px;
+      margin-top: 1rem;
+    }
+
+    .loading-indicator {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+    }
+
+    .loading-indicator.hidden {
+      display: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e5e5e5;
+      border-top-color: #009EDB;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <% if (posts.length === 0) { %>
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+      <p>No posts available</p>
+    </div>
+  <% } else { %>
+    <div class="masonry-grid" id="masonry">
+      <% posts.forEach(post => { %>
+        <div class="feed-card">
+          <% if (post.sourceType === 'youtube' && post.sourceId) { %>
+            <div class="video-container">
+              <iframe
+                src="https://www.youtube.com/embed/<%= post.sourceId %>"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy"
+                title="<%= post.title %>">
+              </iframe>
+            </div>
+          <% } else if (post.imageUrl) { %>
+            <% const imgLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null); %>
+            <% if (imgLink) { %>
+              <a href="<%= imgLink %>" target="_blank" rel="noopener noreferrer">
+                <img
+                  src="<%= post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl %>"
+                  alt="<%= post.title %>"
+                  class="feed-card-image"
+                  loading="lazy"
+                >
+              </a>
+            <% } else { %>
+              <img
+                src="<%= post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl %>"
+                alt="<%= post.title %>"
+                class="feed-card-image"
+                loading="lazy"
+              >
+            <% } %>
+          <% } %>
+
+          <div class="feed-card-body">
+            <% const titleLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null); %>
+            <% if (titleLink) { %>
+              <h3 class="feed-card-title">
+                <a href="<%= titleLink %>" target="_blank" rel="noopener noreferrer"><%= post.title %></a>
+              </h3>
+            <% } else { %>
+              <h3 class="feed-card-title"><%= post.title %></h3>
+            <% } %>
+
+            <% if (post.content && post.content !== '<p><br></p>') { %>
+              <div class="feed-card-content">
+                <%- post.content %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="load-more-trigger" id="loadMoreTrigger"></div>
+    <div class="loading-indicator hidden" id="loadingIndicator">
+      <div class="spinner"></div>
+    </div>
+  <% } %>
+
+  <script>
+    const baseUrl = '<%= baseUrl %>';
+    const totalPosts = <%= totalPosts %>;
+    const postsPerPage = <%= postsPerPage %>;
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = totalPosts > postsPerPage;
+
+    function layoutMasonry() {
+      const grid = document.getElementById('masonry');
+      if (!grid) return;
+
+      const cards = Array.from(grid.querySelectorAll('.feed-card'));
+      if (cards.length === 0) return;
+
+      const gap = 16;
+      const gridWidth = grid.offsetWidth;
+
+      let cols = 3;
+      if (window.innerWidth <= 576) cols = 1;
+      else if (window.innerWidth <= 992) cols = 2;
+
+      const colWidth = (gridWidth - (gap * (cols - 1))) / cols;
+      const colHeights = new Array(cols).fill(0);
+
+      cards.forEach(card => {
+        const shortestCol = colHeights.indexOf(Math.min(...colHeights));
+        card.style.width = colWidth + 'px';
+        card.style.left = (shortestCol * (colWidth + gap)) + 'px';
+        card.style.top = colHeights[shortestCol] + 'px';
+        colHeights[shortestCol] += card.offsetHeight + gap;
+        card.classList.remove('loading');
+      });
+
+      grid.style.height = Math.max(...colHeights) + 'px';
+      sendHeightToParent();
+    }
+
+    function sendHeightToParent() {
+      var height = document.body.scrollHeight;
+      window.parent.postMessage({ type: 'resize', height: height }, '*');
+    }
+
+    function createCardHTML(post) {
+      let mediaHTML = '';
+
+      if (post.sourceType === 'youtube' && post.sourceId) {
+        mediaHTML = '<div class="video-container"><iframe src="https://www.youtube.com/embed/' + post.sourceId + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="' + post.title + '"></iframe></div>';
+      } else if (post.imageUrl) {
+        var imgSrc = post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl;
+        var imgLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null);
+        if (imgLink) {
+          mediaHTML = '<a href="' + imgLink + '" target="_blank" rel="noopener noreferrer"><img src="' + imgSrc + '" alt="' + post.title + '" class="feed-card-image" loading="lazy"></a>';
+        } else {
+          mediaHTML = '<img src="' + imgSrc + '" alt="' + post.title + '" class="feed-card-image" loading="lazy">';
+        }
+      }
+
+      var titleLink = post.linkUrl || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null);
+      var titleHTML = '';
+      if (titleLink) {
+        titleHTML = '<h3 class="feed-card-title"><a href="' + titleLink + '" target="_blank" rel="noopener noreferrer">' + post.title + '</a></h3>';
+      } else {
+        titleHTML = '<h3 class="feed-card-title">' + post.title + '</h3>';
+      }
+
+      var contentHTML = '';
+      if (post.content && post.content !== '<p><br></p>') {
+        contentHTML = '<div class="feed-card-content">' + post.content + '</div>';
+      }
+
+      return '<div class="feed-card loading">' + mediaHTML + '<div class="feed-card-body">' + titleHTML + contentHTML + '</div></div>';
+    }
+
+    async function loadMorePosts() {
+      if (isLoading || !hasMore) return;
+      isLoading = true;
+      document.getElementById('loadingIndicator').classList.remove('hidden');
+
+      try {
+        var nextPage = currentPage + 1;
+        var response = await fetch(baseUrl + '/embed/posts?page=' + nextPage);
+        var data = await response.json();
+
+        if (data.posts && data.posts.length > 0) {
+          var grid = document.getElementById('masonry');
+          data.posts.forEach(function(post) {
+            grid.insertAdjacentHTML('beforeend', createCardHTML(post));
+          });
+
+          currentPage = nextPage;
+          hasMore = data.hasMore;
+
+          var newImages = grid.querySelectorAll('.feed-card.loading .feed-card-image');
+          if (newImages.length > 0) {
+            var loadedCount = 0;
+            newImages.forEach(function(img) {
+              if (img.complete) {
+                loadedCount++;
+              } else {
+                img.addEventListener('load', function() {
+                  loadedCount++;
+                  if (loadedCount >= newImages.length) layoutMasonry();
+                });
+                img.addEventListener('error', function() {
+                  loadedCount++;
+                  if (loadedCount >= newImages.length) layoutMasonry();
+                });
+              }
+            });
+            if (loadedCount >= newImages.length) layoutMasonry();
+          } else {
+            layoutMasonry();
+          }
+        }
+      } catch (err) {
+        console.error('Error loading more posts:', err);
+      }
+
+      isLoading = false;
+      document.getElementById('loadingIndicator').classList.add('hidden');
+    }
+
+    function setupInfiniteScroll() {
+      var trigger = document.getElementById('loadMoreTrigger');
+      if (!trigger || !hasMore) return;
+
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'checkLoadMore') {
+          loadMorePosts();
+        }
+      });
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting && hasMore && !isLoading) {
+            loadMorePosts();
+          }
+        });
+      }, { rootMargin: '200px' });
+
+      observer.observe(trigger);
+    }
+
+    function init() {
+      var images = document.querySelectorAll('.feed-card-image');
+      var loaded = 0;
+      var total = images.length;
+
+      if (total === 0) {
+        layoutMasonry();
+        setupInfiniteScroll();
+        return;
+      }
+
+      images.forEach(function(img) {
+        if (img.complete) {
+          loaded++;
+          if (loaded === total) {
+            layoutMasonry();
+            setupInfiniteScroll();
+          }
+        } else {
+          img.addEventListener('load', function() {
+            loaded++;
+            if (loaded === total) {
+              layoutMasonry();
+              setupInfiniteScroll();
+            }
+          });
+          img.addEventListener('error', function() {
+            loaded++;
+            if (loaded === total) {
+              layoutMasonry();
+              setupInfiniteScroll();
+            }
+          });
+        }
+      });
+
+      setTimeout(function() {
+        layoutMasonry();
+        setupInfiniteScroll();
+      }, 2000);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('resize', layoutMasonry);
+    setTimeout(layoutMasonry, 500);
+  </script>
+</body>
+</html>

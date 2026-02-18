@@ -4,170 +4,246 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UN Social Feed</title>
-  
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap');
-    
-    * {
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
-    body {
+
+    html, body {
+      height: 85vh;
+      overflow: hidden;
       font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: transparent;
-      color: #333;
-      line-height: 1.5;
-      padding: 1rem;
-      overflow: hidden; /* Prevent scrolling in iframe */
+      background: #0a0a0a;
+      color: #fff;
     }
-    
-    /* UN Blue accent */
-    a {
-      color: #009EDB;
-      text-decoration: none;
+
+    /* ── Scroll wrapper ─────────────────────────────── */
+
+    .scroll-wrapper {
+      height: 85vh;
+      overflow: hidden;
+      padding: 0.5rem;
     }
-    
-    a:hover {
-      color: #0077A8;
+
+    .scroll-track {
+      display: flex;
+      gap: 0.5rem;
+      height: 100%;
+      width: max-content;
+      will-change: transform;
     }
-    
-    /* Masonry grid container */
-    .masonry-grid {
-      position: relative;
+
+    .scroll-track.animate {
+      animation: scroll-left var(--duration, 60s) linear infinite;
     }
-    
-    /* Card styles */
+
+    .scroll-wrapper:hover .scroll-track.animate {
+      animation-play-state: paused;
+    }
+
+    @keyframes scroll-left {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Column (top-to-bottom, then next column) ──── */
+
+    .scroll-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-shrink: 0;
+      height: 100%;
+    }
+
+    /* ── Card ────────────────────────────────────────── */
+
     .feed-card {
-      position: absolute;
-      width: calc(33.333% - 0.667rem);
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
-    }
-    
-    .feed-card.loading {
-      opacity: 0;
-    }
-    
-    .feed-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    @media (max-width: 992px) {
-      .feed-card {
-        width: calc(50% - 0.5rem);
-      }
-    }
-    
-    @media (max-width: 576px) {
-      .feed-card {
-        width: 100%;
-      }
-    }
-    
-    .feed-card-image {
-      width: 100%;
-      display: block;
-    }
-    
-    .feed-card-body {
-      padding: 1rem;
-    }
-    
-    .feed-card-title {
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: #222;
-    }
-    
-    .feed-card-content {
-      font-size: 0.875rem;
-      color: #555;
-    }
-    
-    .feed-card-content p {
-      margin-bottom: 0.5rem;
-    }
-    
-    .feed-card-content p:last-child {
-      margin-bottom: 0;
-    }
-    
-    .feed-card-title a {
-      color: inherit;
-      text-decoration: none;
-    }
-    
-    .feed-card-title a:hover {
-      color: #009EDB;
-    }
-    
-    /* Video embed container */
-    .video-container {
       position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
+      width: 300px;
+      height: calc((85vh - 1.5rem) / 2);
+      border-radius: 10px;
       overflow: hidden;
-      background: #000;
+      background: #1a1a1a;
+      flex-shrink: 0;
     }
-    
-    .video-container iframe {
+
+    /* Full-bleed media layer */
+    .feed-card-media {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
+    }
+
+    .feed-card-media img {
       width: 100%;
       height: 100%;
-      border: none;
+      object-fit: cover;
+      display: block;
     }
-    
-    /* Empty state */
-    .empty-state {
+
+    /* YouTube play icon (always visible on video cards) */
+    .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      pointer-events: none;
+      transition: background 0.2s;
+    }
+
+    .feed-card:hover .play-icon {
+      background: rgba(255, 0, 0, 0.85);
+    }
+
+    .play-icon::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 9px 0 9px 16px;
+      border-color: transparent transparent transparent #fff;
+      margin-left: 3px;
+    }
+
+    /* Hover overlay */
+    .feed-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1rem;
+      z-index: 3;
+    }
+
+    .feed-card:hover .feed-card-overlay {
+      opacity: 1;
+    }
+
+    .feed-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.35;
+      margin-bottom: 0.3rem;
+    }
+
+    .feed-card-content {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.8);
+      max-height: 3.2em;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+
+    .feed-card-content p {
+      margin: 0;
+    }
+
+    /* Invisible full-card link */
+    .feed-card-link {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+    }
+
+    /* No-media cards (text-only originals) */
+    .feed-card.no-media {
+      background: linear-gradient(135deg, #009EDB 0%, #005B8E 100%);
+    }
+
+    .feed-card.no-media .feed-card-overlay {
+      opacity: 1;
+      background: none;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      padding: 3rem 1rem;
-      color: #888;
     }
-    
+
+    .feed-card.no-media .feed-card-title {
+      font-size: 1.1rem;
+    }
+
+    /* Source type badge */
+    .source-badge {
+      position: absolute;
+      top: 0.6rem;
+      left: 0.6rem;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      z-index: 2;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .source-badge svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    /* ── Empty state ────────────────────────────────── */
+
+    .empty-state {
+      height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+    }
+
     .empty-state svg {
       width: 64px;
       height: 64px;
       margin-bottom: 1rem;
-      opacity: 0.5;
+      opacity: 0.4;
     }
-    
-    /* Loading indicator */
-    .load-more-trigger {
-      height: 1px;
-      margin-top: 1rem;
+
+    .empty-state p {
+      font-size: 0.9rem;
     }
-    
-    .loading-indicator {
-      text-align: center;
-      padding: 2rem;
-      color: #888;
+
+    /* ── Responsive ─────────────────────────────────── */
+
+    @media (max-height: 500px) {
+      .feed-card {
+        width: 240px;
+      }
     }
-    
-    .loading-indicator.hidden {
-      display: none;
-    }
-    
-    .spinner {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      border: 3px solid #e5e5e5;
-      border-top-color: #009EDB;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+
+    @media (max-height: 360px) {
+      .scroll-column {
+        flex-direction: row;
+      }
+      .feed-card {
+        height: calc(85vh - 1rem);
+        width: 260px;
+      }
     }
   </style>
 </head>
@@ -180,270 +256,101 @@
       <p>No posts available</p>
     </div>
   <% } else { %>
-    <div class="masonry-grid" id="masonry">
-      <% posts.forEach(post => { %>
-        <div class="feed-card">
-          <% if (post.sourceType === 'youtube' && post.sourceId) { %>
-            <div class="video-container">
-              <iframe 
-                src="https://www.youtube.com/embed/<%= post.sourceId %>" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-                loading="lazy"
-                title="<%= post.title %>">
-              </iframe>
+    <%
+      const ROWS = 2;
+      const columns = [];
+      for (let i = 0; i < posts.length; i += ROWS) {
+        columns.push(posts.slice(i, i + ROWS));
+      }
+    %>
+    <div class="scroll-wrapper">
+      <div class="scroll-track" id="scrollTrack">
+        <% for (let copy = 0; copy < 2; copy++) { %>
+          <% columns.forEach(col => { %>
+            <div class="scroll-column">
+              <% col.forEach(post => { %>
+                <%
+                  const cardLink = post.linkUrl
+                    || (post.sourceType !== 'original' && post.sourceUrl ? post.sourceUrl : null);
+                  const imgSrc = post.imageUrl
+                    ? (post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl)
+                    : null;
+                  const isYouTube = post.sourceType === 'youtube' && post.sourceId;
+                  const hasMedia = !!(imgSrc || isYouTube);
+                %>
+                <div class="feed-card<%= hasMedia ? '' : ' no-media' %>">
+                  <% if (hasMedia) { %>
+                    <div class="feed-card-media">
+                      <img
+                        src="<%= imgSrc || ('https://img.youtube.com/vi/' + post.sourceId + '/hqdefault.jpg') %>"
+                        alt="<%= post.title %>"
+                        loading="lazy"
+                      >
+                    </div>
+                    <% if (isYouTube) { %>
+                      <div class="play-icon"></div>
+                    <% } %>
+                  <% } %>
+
+                  <div class="feed-card-overlay">
+                    <h3 class="feed-card-title"><%= post.title %></h3>
+                    <% if (post.content && post.content !== '<p><br></p>') { %>
+                      <div class="feed-card-content"><%- post.content %></div>
+                    <% } %>
+                  </div>
+
+                  <% if (cardLink) { %>
+                    <a href="<%= cardLink %>" target="_blank" rel="noopener noreferrer" class="feed-card-link" aria-label="<%= post.title %>"></a>
+                  <% } %>
+                </div>
+              <% }); %>
             </div>
-          <% } else if (post.imageUrl) { %>
-            <img 
-              src="<%= post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl %>" 
-              alt="<%= post.title %>" 
-              class="feed-card-image"
-              loading="lazy"
-            >
-          <% } %>
-          
-          <div class="feed-card-body">
-            <% if (post.sourceType !== 'original' && post.sourceUrl) { %>
-              <h3 class="feed-card-title">
-                <a href="<%= post.sourceUrl %>" target="_blank" rel="noopener noreferrer" title="View the source"><%= post.title %></a>
-              </h3>
-            <% } else { %>
-              <h3 class="feed-card-title"><%= post.title %></h3>
-            <% } %>
-            
-            <% if (post.content && post.content !== '<p><br></p>') { %>
-              <div class="feed-card-content">
-                <%- post.content %>
-              </div>
-            <% } %>
-          </div>
-        </div>
-      <% }); %>
-    </div>
-    
-    <!-- Lazy load trigger -->
-    <div class="load-more-trigger" id="loadMoreTrigger"></div>
-    <div class="loading-indicator hidden" id="loadingIndicator">
-      <div class="spinner"></div>
+          <% }); %>
+        <% } %>
+      </div>
     </div>
   <% } %>
 
   <script>
-    const baseUrl = '<%= baseUrl %>';
-    const totalPosts = <%= totalPosts %>;
-    const postsPerPage = <%= postsPerPage %>;
-    let currentPage = 1;
-    let isLoading = false;
-    let hasMore = totalPosts > postsPerPage;
-    
-    // Lightweight masonry layout
-    function layoutMasonry() {
-      const grid = document.getElementById('masonry');
-      if (!grid) return;
-      
-      const cards = Array.from(grid.querySelectorAll('.feed-card'));
-      if (cards.length === 0) return;
-      
-      const gap = 16;
-      const gridWidth = grid.offsetWidth;
-      
-      let cols = 3;
-      if (window.innerWidth <= 576) cols = 1;
-      else if (window.innerWidth <= 992) cols = 2;
-      
-      const colWidth = (gridWidth - (gap * (cols - 1))) / cols;
-      const colHeights = new Array(cols).fill(0);
-      
-      cards.forEach(card => {
-        const shortestCol = colHeights.indexOf(Math.min(...colHeights));
-        
-        card.style.width = colWidth + 'px';
-        card.style.left = (shortestCol * (colWidth + gap)) + 'px';
-        card.style.top = colHeights[shortestCol] + 'px';
-        
-        colHeights[shortestCol] += card.offsetHeight + gap;
-        
-        // Fade in new cards
-        card.classList.remove('loading');
-      });
-      
-      grid.style.height = Math.max(...colHeights) + 'px';
-      
-      sendHeightToParent();
-    }
-    
-    function sendHeightToParent() {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ type: 'resize', height: height }, '*');
-    }
-    
-    // Create card HTML from post data
-    function createCardHTML(post) {
-      let mediaHTML = '';
-      
-      if (post.sourceType === 'youtube' && post.sourceId) {
-        mediaHTML = `
-          <div class="video-container">
-            <iframe 
-              src="https://www.youtube.com/embed/${post.sourceId}" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen
-              loading="lazy"
-              title="${post.title}">
-            </iframe>
-          </div>`;
-      } else if (post.imageUrl) {
-        const imgSrc = post.imageUrl.startsWith('/') ? baseUrl + post.imageUrl : post.imageUrl;
-        mediaHTML = `<img src="${imgSrc}" alt="${post.title}" class="feed-card-image" loading="lazy">`;
+    document.addEventListener('DOMContentLoaded', function() {
+      var track = document.getElementById('scrollTrack');
+      if (!track) return;
+
+      var images = track.querySelectorAll('.feed-card-media img');
+      var loaded = 0;
+      var total = images.length;
+
+      function startScroll() {
+        var contentWidth = track.scrollWidth / 2;
+        var viewportWidth = track.parentElement.offsetWidth;
+
+        if (contentWidth <= viewportWidth) return;
+
+        var speed = 40;
+        var duration = contentWidth / speed;
+        track.style.setProperty('--duration', duration + 's');
+        track.classList.add('animate');
       }
-      
-      let titleHTML = '';
-      if (post.sourceType !== 'original' && post.sourceUrl) {
-        titleHTML = `<h3 class="feed-card-title"><a href="${post.sourceUrl}" target="_blank" rel="noopener noreferrer" title="View the source">${post.title}</a></h3>`;
+
+      function onImageReady() {
+        loaded++;
+        if (loaded >= total) startScroll();
+      }
+
+      if (total === 0) {
+        startScroll();
       } else {
-        titleHTML = `<h3 class="feed-card-title">${post.title}</h3>`;
-      }
-      
-      let contentHTML = '';
-      if (post.content && post.content !== '<p><br></p>') {
-        contentHTML = `<div class="feed-card-content">${post.content}</div>`;
-      }
-      
-      return `
-        <div class="feed-card loading">
-          ${mediaHTML}
-          <div class="feed-card-body">
-            ${titleHTML}
-            ${contentHTML}
-          </div>
-        </div>`;
-    }
-    
-    // Load more posts
-    async function loadMorePosts() {
-      if (isLoading || !hasMore) return;
-      
-      isLoading = true;
-      document.getElementById('loadingIndicator').classList.remove('hidden');
-      
-      try {
-        const nextPage = currentPage + 1;
-        const response = await fetch(`${baseUrl}/embed/posts?page=${nextPage}`);
-        const data = await response.json();
-        
-        if (data.posts && data.posts.length > 0) {
-          const grid = document.getElementById('masonry');
-          
-          // Add new cards
-          data.posts.forEach(post => {
-            grid.insertAdjacentHTML('beforeend', createCardHTML(post));
-          });
-          
-          currentPage = nextPage;
-          hasMore = data.hasMore;
-          
-          // Wait for images to load then relayout
-          const newImages = grid.querySelectorAll('.feed-card.loading .feed-card-image');
-          if (newImages.length > 0) {
-            let loadedCount = 0;
-            newImages.forEach(img => {
-              if (img.complete) {
-                loadedCount++;
-              } else {
-                img.addEventListener('load', () => {
-                  loadedCount++;
-                  if (loadedCount >= newImages.length) layoutMasonry();
-                });
-                img.addEventListener('error', () => {
-                  loadedCount++;
-                  if (loadedCount >= newImages.length) layoutMasonry();
-                });
-              }
-            });
-            if (loadedCount >= newImages.length) layoutMasonry();
+        images.forEach(function(img) {
+          if (img.complete) {
+            onImageReady();
           } else {
-            layoutMasonry();
-          }
-        }
-      } catch (err) {
-        console.error('Error loading more posts:', err);
-      }
-      
-      isLoading = false;
-      document.getElementById('loadingIndicator').classList.add('hidden');
-    }
-    
-    // Set up Intersection Observer for infinite scroll
-    function setupInfiniteScroll() {
-      const trigger = document.getElementById('loadMoreTrigger');
-      if (!trigger || !hasMore) return;
-      
-      // Listen for scroll events from parent window
-      window.addEventListener('message', (e) => {
-        if (e.data && e.data.type === 'checkLoadMore') {
-          loadMorePosts();
-        }
-      });
-      
-      // Also use Intersection Observer as fallback
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && hasMore && !isLoading) {
-            loadMorePosts();
+            img.addEventListener('load', onImageReady);
+            img.addEventListener('error', onImageReady);
           }
         });
-      }, { rootMargin: '200px' });
-      
-      observer.observe(trigger);
-    }
-    
-    // Wait for images to load, then layout
-    function init() {
-      const images = document.querySelectorAll('.feed-card-image');
-      let loaded = 0;
-      const total = images.length;
-      
-      if (total === 0) {
-        layoutMasonry();
-        setupInfiniteScroll();
-        return;
+        setTimeout(startScroll, 3000);
       }
-      
-      images.forEach(img => {
-        if (img.complete) {
-          loaded++;
-          if (loaded === total) {
-            layoutMasonry();
-            setupInfiniteScroll();
-          }
-        } else {
-          img.addEventListener('load', () => {
-            loaded++;
-            if (loaded === total) {
-              layoutMasonry();
-              setupInfiniteScroll();
-            }
-          });
-          img.addEventListener('error', () => {
-            loaded++;
-            if (loaded === total) {
-              layoutMasonry();
-              setupInfiniteScroll();
-            }
-          });
-        }
-      });
-      
-      // Fallback
-      setTimeout(() => {
-        layoutMasonry();
-        setupInfiniteScroll();
-      }, 2000);
-    }
-    
-    document.addEventListener('DOMContentLoaded', init);
-    window.addEventListener('resize', layoutMasonry);
-    setTimeout(layoutMasonry, 500);
+    });
   </script>
 </body>
 </html>
