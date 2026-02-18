@@ -1,7 +1,10 @@
 const multer = require('multer');
 const path = require('path');
+const sharp = require('sharp');
 
-// Use memory storage for serverless environments (Vercel)
+const MAX_DIMENSION = 800;
+const JPEG_QUALITY = 80;
+
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
@@ -19,15 +22,35 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max for base64 storage
+    fileSize: 5 * 1024 * 1024
   }
 });
 
-// Helper to convert file buffer to data URL
-upload.toDataUrl = (file) => {
+upload.toDataUrl = async (file) => {
   if (!file || !file.buffer) return null;
-  const base64 = file.buffer.toString('base64');
-  return `data:${file.mimetype};base64,${base64}`;
+
+  try {
+    const image = sharp(file.buffer);
+    const metadata = await image.metadata();
+
+    let pipeline = image;
+    if (metadata.width > MAX_DIMENSION || metadata.height > MAX_DIMENSION) {
+      pipeline = pipeline.resize(MAX_DIMENSION, MAX_DIMENSION, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      });
+    }
+
+    const buffer = await pipeline
+      .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
+      .toBuffer();
+
+    return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  } catch (err) {
+    console.error('Image resize failed, using original:', err.message);
+    const base64 = file.buffer.toString('base64');
+    return `data:${file.mimetype};base64,${base64}`;
+  }
 };
 
 module.exports = upload;

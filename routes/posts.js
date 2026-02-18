@@ -74,7 +74,7 @@ router.post('/create', ensureAuthenticated, handleUpload, async (req, res) => {
 
     // Handle image upload (not for YouTube - use auto thumbnail)
     if (req.file && sourceType !== 'youtube') {
-      postData.imageUrl = upload.toDataUrl(req.file);
+      postData.imageUrl = await upload.toDataUrl(req.file);
     }
 
     // Check YouTube embeddability before saving
@@ -160,7 +160,7 @@ router.post('/:id/edit', ensureAuthenticated, handleUpload, async (req, res) => 
 
     // Handle image upload
     if (req.file) {
-      updateData.imageUrl = upload.toDataUrl(req.file);
+      updateData.imageUrl = await upload.toDataUrl(req.file);
     }
 
     // Handle social media imports
