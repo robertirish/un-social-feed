@@ -42,14 +42,11 @@
       animation: scroll-left var(--duration, 60s) linear infinite;
     }
 
-    .scroll-wrapper:hover .scroll-track.animate {
-      animation-duration: var(--duration-slow, 180s);
-    }
-
     @keyframes scroll-left {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
+
 
     /* ── Column (top-to-bottom, then next column) ──── */
 
@@ -350,12 +347,9 @@
 
         if (contentWidth <= viewportWidth) return;
 
-        var speed = 60;
-        var hoverSpeed = 20;
+        var speed = 40;
         var duration = contentWidth / speed;
-        var durationSlow = contentWidth / hoverSpeed;
         track.style.setProperty('--duration', duration + 's');
-        track.style.setProperty('--duration-slow', durationSlow + 's');
         track.classList.add('animate');
       }
 
