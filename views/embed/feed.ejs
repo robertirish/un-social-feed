@@ -130,7 +130,8 @@
       flex-direction: column;
       justify-content: flex-end;
       padding: 1rem;
-      z-index: 3;
+      z-index: 5;
+      pointer-events: none;
     }
 
     .feed-card:hover .feed-card-overlay {
@@ -143,6 +144,16 @@
       color: #fff;
       line-height: 1.35;
       margin-bottom: 0.3rem;
+    }
+
+    .feed-card-title a {
+      color: inherit;
+      text-decoration: none;
+      pointer-events: auto;
+    }
+
+    .feed-card-title a:hover {
+      color: #009EDB;
     }
 
     .feed-card-content {
@@ -162,11 +173,6 @@
       position: absolute;
       inset: 0;
       z-index: 4;
-    }
-
-    /* Linked titles turn UN Blue on hover */
-    .feed-card.has-link:hover .feed-card-title {
-      color: #009EDB;
     }
 
     /* No-media cards (text-only originals) */
@@ -296,7 +302,7 @@
                     ? 'calc(85vh - 1rem)'
                     : 'calc(' + ratio + ' * (85vh - 1.5rem))';
                 %>
-                <div class="feed-card<%= hasMedia ? '' : ' no-media' %><%= cardLink ? ' has-link' : '' %>" style="height:<%= heightCalc %>">
+                <div class="feed-card<%= hasMedia ? '' : ' no-media' %>" style="height:<%= heightCalc %>">
                   <% if (hasMedia) { %>
                     <div class="feed-card-media">
                       <img
@@ -311,7 +317,7 @@
                   <% } %>
 
                   <div class="feed-card-overlay">
-                    <h3 class="feed-card-title"><%= post.title %></h3>
+                    <h3 class="feed-card-title"><% if (cardLink) { %><a href="<%= cardLink %>" target="_blank" rel="noopener noreferrer"><%= post.title %></a><% } else { %><%= post.title %><% } %></h3>
                     <% if (post.content && post.content !== '<p><br></p>') { %>
                       <div class="feed-card-content"><%- post.content %></div>
                     <% } %>
