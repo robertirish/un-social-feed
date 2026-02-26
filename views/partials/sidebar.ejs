@@ -70,6 +70,12 @@
         <i class="bi bi-people"></i> Users
       </a>
     <% } %>
+    
+    <div class="sidebar-section">Settings</div>
+    
+    <a href="/admin/account" class="nav-link <%= typeof active !== 'undefined' && active === 'account' ? 'active' : '' %>">
+      <i class="bi bi-person-gear"></i> Account
+    </a>
   </nav>
   
   <!-- User info and logout at bottom -->

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts, isAdmin } = require('../middleware/auth');
 const { Op, fn, col, where: seqWhere, cast } = require('sequelize');
@@ -183,6 +184,58 @@ router.get('/users', isAdmin, async (req, res) => {
   }
 });
 
+// Create user (admin only)
+router.post('/users/create', isAdmin, async (req, res) => {
+  try {
+    const { name, email, password, password2, role } = req.body;
+    const errors = [];
+
+    if (!name || !email || !password || !password2) {
+      errors.push('Please fill in all fields');
+    }
+
+    if (password !== password2) {
+      errors.push('Passwords do not match');
+    }
+
+    if (password && password.length < 6) {
+      errors.push('Password must be at least 6 characters');
+    }
+
+    if (role && !['user', 'editor', 'admin'].includes(role)) {
+      errors.push('Invalid role');
+    }
+
+    if (errors.length > 0) {
+      req.flash('error_msg', errors.join('. '));
+      return res.redirect('/admin/users');
+    }
+
+    const existingUser = await User.findOne({ where: { email: email.toLowerCase() } });
+    if (existingUser) {
+      req.flash('error_msg', 'Email is already registered');
+      return res.redirect('/admin/users');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await User.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role: role || 'user'
+    });
+
+    req.flash('success_msg', 'User created successfully');
+    res.redirect('/admin/users');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error creating user');
+    res.redirect('/admin/users');
+  }
+});
+
 // Update user role (admin only)
 router.post('/users/:id/role', isAdmin, async (req, res) => {
   try {
@@ -227,6 +280,59 @@ router.post('/users/:id/delete', isAdmin, async (req, res) => {
     console.error(err);
     req.flash('error_msg', 'Error deleting user');
     res.redirect('/admin/users');
+  }
+});
+
+
+// Account page
+router.get('/account', ensureAuthenticated, (req, res) => {
+  res.render('admin/account', {
+    title: 'Account'
+  });
+});
+
+// Change password
+router.post('/account/password', ensureAuthenticated, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, newPassword2 } = req.body;
+    const errors = [];
+
+    if (!currentPassword || !newPassword || !newPassword2) {
+      errors.push('Please fill in all fields');
+    }
+
+    if (newPassword !== newPassword2) {
+      errors.push('New passwords do not match');
+    }
+
+    if (newPassword && newPassword.length < 6) {
+      errors.push('New password must be at least 6 characters');
+    }
+
+    if (errors.length > 0) {
+      req.flash('error_msg', errors.join('. '));
+      return res.redirect('/admin/account');
+    }
+
+    const user = await User.findByPk(req.user.id);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      req.flash('error_msg', 'Current password is incorrect');
+      return res.redirect('/admin/account');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await User.update({ password: hashedPassword }, { where: { id: req.user.id } });
+
+    req.flash('success_msg', 'Password updated successfully');
+    res.redirect('/admin/account');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error updating password');
+    res.redirect('/admin/account');
   }
 });
 

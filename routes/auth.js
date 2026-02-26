@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const { User } = require('../models');
 const { ensureGuest, ensureAuthenticated } = require('../middleware/auth');
 
+const REGISTRATION_ENABLED = false;
+
 // Login page
 router.get('/login', ensureGuest, (req, res) => {
   res.render('auth/login', { title: 'Login' });
@@ -37,11 +39,19 @@ router.post('/login', ensureGuest, (req, res, next) => {
 
 // Register page
 router.get('/register', ensureGuest, (req, res) => {
+  if (!REGISTRATION_ENABLED) {
+    req.flash('error_msg', 'Registration is currently disabled');
+    return res.redirect('/auth/login');
+  }
   res.render('auth/register', { title: 'Register' });
 });
 
 // Register handler
 router.post('/register', ensureGuest, async (req, res) => {
+  if (!REGISTRATION_ENABLED) {
+    req.flash('error_msg', 'Registration is currently disabled');
+    return res.redirect('/auth/login');
+  }
   const { name, email, password, password2 } = req.body;
   const errors = [];
 
