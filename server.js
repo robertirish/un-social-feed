@@ -1,4 +1,5 @@
 require('dotenv').config();
+const crypto = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
@@ -7,6 +8,11 @@ const path = require('path');
 const { sequelize } = require('./models');
 
 const app = express();
+
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET environment variable is required in production');
+  process.exit(1);
+}
 
 // Trust proxy (required for secure cookies behind Railway/Heroku proxy)
 app.set('trust proxy', 1);
@@ -47,6 +53,37 @@ app.use(passport.session());
 // Flash messages
 app.use(flash());
 
+// CSRF protection
+function csrfProtection(req, res, next) {
+  if (!req.session) return next();
+
+  if (!req.session.csrfToken) {
+    req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+  }
+
+  res.locals.csrfToken = req.session.csrfToken;
+
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return next();
+  }
+
+  // Skip CSRF for public embed endpoints
+  if (req.path.startsWith('/embed')) {
+    return next();
+  }
+
+  const token = req.body._csrf || req.headers['x-csrf-token'];
+  if (!token || token !== req.session.csrfToken) {
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.status(403).json({ success: false, error: 'Invalid CSRF token' });
+    }
+    req.flash('error_msg', 'Form expired. Please try again.');
+    return res.redirect('back');
+  }
+
+  next();
+}
+
 // Post counts middleware
 const { addPostCounts } = require('./middleware/counts');
 
@@ -58,6 +95,9 @@ app.use((req, res, next) => {
   res.locals.error = req.flash('error');
   next();
 });
+
+// CSRF protection
+app.use(csrfProtection);
 
 // Add post counts for sidebar
 app.use(addPostCounts);
@@ -90,7 +130,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 // Sync database - use alter to update schema
-sequelize.sync({ alter: true })
+sequelize.sync(process.env.NODE_ENV === 'production' ? {} : { alter: true })
   .then(() => {
     console.log('Database connected and synced');
   })

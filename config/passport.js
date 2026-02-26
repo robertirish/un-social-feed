@@ -9,7 +9,7 @@ module.exports = function(passport) {
         const user = await User.findOne({ where: { email: email.toLowerCase() } });
         
         if (!user) {
-          return done(null, false, { message: 'Email not registered' });
+          return done(null, false, { message: 'Invalid email or password' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -17,7 +17,7 @@ module.exports = function(passport) {
         if (isMatch) {
           return done(null, user);
         } else {
-          return done(null, false, { message: 'Incorrect password' });
+          return done(null, false, { message: 'Invalid email or password' });
         }
       } catch (err) {
         return done(err);

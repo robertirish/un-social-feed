@@ -8,6 +8,44 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   
   <script>
+    (function() {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      if (!meta) return;
+      var csrfToken = meta.getAttribute('content');
+
+      function injectToken(form) {
+        if (form.method && form.method.toUpperCase() === 'POST' && !form.querySelector('input[name="_csrf"]')) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '_csrf';
+          input.value = csrfToken;
+          form.appendChild(input);
+        }
+      }
+
+      document.querySelectorAll('form').forEach(injectToken);
+
+      document.addEventListener('submit', function(e) {
+        if (e.target.tagName === 'FORM') injectToken(e.target);
+      }, true);
+
+      var originalFetch = window.fetch;
+      window.fetch = function(url, options) {
+        options = options || {};
+        if (options.method && options.method.toUpperCase() !== 'GET') {
+          options.headers = options.headers || {};
+          if (options.headers instanceof Headers) {
+            options.headers.set('X-CSRF-Token', csrfToken);
+          } else {
+            options.headers['X-CSRF-Token'] = csrfToken;
+          }
+        }
+        return originalFetch.call(this, url, options);
+      };
+    })();
+  </script>
+
+  <script>
     // Flash message auto-dismiss
     document.querySelectorAll('.alert-dismissible').forEach(alert => {
       setTimeout(() => {
