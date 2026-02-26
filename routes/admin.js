@@ -291,6 +291,42 @@ router.get('/account', ensureAuthenticated, (req, res) => {
   });
 });
 
+// Update profile
+router.post('/account/profile', ensureAuthenticated, async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const errors = [];
+
+    if (!name || !email) {
+      errors.push('Name and email are required');
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.push('Please enter a valid email address');
+    }
+
+    if (errors.length > 0) {
+      req.flash('error_msg', errors.join('. '));
+      return res.redirect('/admin/account');
+    }
+
+    const existingUser = await User.findOne({ where: { email: email.toLowerCase(), id: { [Op.ne]: req.user.id } } });
+    if (existingUser) {
+      req.flash('error_msg', 'That email is already in use by another account');
+      return res.redirect('/admin/account');
+    }
+
+    await User.update({ name, email: email.toLowerCase() }, { where: { id: req.user.id } });
+
+    req.flash('success_msg', 'Profile updated successfully');
+    res.redirect('/admin/account');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error updating profile');
+    res.redirect('/admin/account');
+  }
+});
+
 // Change password
 router.post('/account/password', ensureAuthenticated, async (req, res) => {
   try {
