@@ -8,6 +8,7 @@
       <h4 class="mb-0"><%= title %></h4>
       <div class="d-flex align-items-center gap-3">
         <%- include('../partials/search', { search, placeholder: 'Search posts...', clearUrl: '/admin/posts/' + currentStatus }) %>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="randomize-btn" title="Randomize post order"><i class="bi bi-shuffle me-1"></i>Randomize</button>
         <div class="btn-group">
           <a href="/admin/posts/all" class="btn btn-sm <%= currentStatus === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>">All</a>
           <a href="/admin/posts/pending" class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline-secondary' %>">Pending</a>
@@ -107,6 +108,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
+  // Randomize order button
+  const randomizeBtn = document.getElementById('randomize-btn');
+  if (randomizeBtn) {
+    randomizeBtn.addEventListener('click', function() {
+      if (!confirm('Randomize the order of all unpinned posts?')) return;
+      randomizeBtn.disabled = true;
+      randomizeBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Randomizing...';
+      fetch('/api/posts/randomize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else alert('Error: ' + (data.error || 'Unknown error'));
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error randomizing posts');
+      })
+      .finally(() => {
+        randomizeBtn.disabled = false;
+        randomizeBtn.innerHTML = '<i class="bi bi-shuffle me-1"></i>Randomize';
+      });
+    });
+  }
   function saveOrder() {
     const order = [];
     let sortIndex = 0;

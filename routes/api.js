@@ -99,4 +99,31 @@ router.post('/posts/:id/pin', canManagePosts, async (req, res) => {
   }
 });
 
+// Randomize post order
+router.post("/posts/randomize", canManagePosts, async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      where: { isPinned: false },
+      attributes: ["id"]
+    });
+
+    // Fisher-Yates shuffle
+    const ids = posts.map(p => p.id);
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+
+    await Promise.all(
+      ids.map((id, index) =>
+        Post.update({ sortOrder: index }, { where: { id } })
+      )
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Error randomizing order" });
+  }
+});
 module.exports = router;

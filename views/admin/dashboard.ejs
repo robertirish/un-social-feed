@@ -47,6 +47,7 @@
           <h5 class="mb-0"><%= isManager ? 'All Posts' : 'My Posts' %></h5>
           <div class="d-flex align-items-center gap-3">
             <%- include('../partials/search', { search, placeholder: 'Search posts...', clearUrl: '/admin' }) %>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="randomize-btn" title="Randomize post order"><i class="bi bi-shuffle me-1"></i>Randomize</button>
             <a href="/posts/create" class="btn btn-primary btn-sm">
               <i class="bi bi-plus me-1"></i>Create Post
             </a>
@@ -139,6 +140,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
+  // Randomize order button
+  const randomizeBtn = document.getElementById('randomize-btn');
+  if (randomizeBtn) {
+    randomizeBtn.addEventListener('click', function() {
+      if (!confirm('Randomize the order of all unpinned posts?')) return;
+      randomizeBtn.disabled = true;
+      randomizeBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Randomizing...';
+      fetch('/api/posts/randomize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else alert('Error: ' + (data.error || 'Unknown error'));
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error randomizing posts');
+      })
+      .finally(() => {
+        randomizeBtn.disabled = false;
+        randomizeBtn.innerHTML = '<i class="bi bi-shuffle me-1"></i>Randomize';
+      });
+    });
+  }
   function saveOrder() {
     const order = [];
     let sortIndex = 0;
