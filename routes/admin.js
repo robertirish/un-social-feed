@@ -45,7 +45,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
       include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [
         ['isPinned', 'DESC'],
-        ['createdAt', 'DESC']
+        ['sortOrder', 'ASC'],        ['createdAt', 'DESC']
       ],
       limit: POSTS_PER_PAGE,
       offset: offset
@@ -114,7 +114,7 @@ router.get('/posts/:status', canManagePosts, async (req, res) => {
       include: [{ model: User, as: 'author', attributes: ['name'] }],
       order: [
         ['isPinned', 'DESC'],
-        ['createdAt', 'DESC']
+        ['sortOrder', 'ASC'],        ['createdAt', 'DESC']
       ],
       limit: POSTS_PER_PAGE,
       offset: offset
