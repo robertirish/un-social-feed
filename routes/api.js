@@ -126,4 +126,25 @@ router.post("/posts/randomize", canManagePosts, async (req, res) => {
     res.status(500).json({ success: false, error: "Error randomizing order" });
   }
 });
+// Reset post order to chronological (newest first)
+router.post("/posts/reset-order", canManagePosts, async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      where: { isPinned: false },
+      attributes: ["id"],
+      order: [["createdAt", "DESC"]]
+    });
+
+    await Promise.all(
+      posts.map((post, index) =>
+        Post.update({ sortOrder: index }, { where: { id: post.id } })
+      )
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Error resetting order" });
+  }
+});
 module.exports = router;

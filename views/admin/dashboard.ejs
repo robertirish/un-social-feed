@@ -47,6 +47,7 @@
           <h5 class="mb-0"><%= isManager ? 'All Posts' : 'My Posts' %></h5>
           <div class="d-flex align-items-center gap-3">
             <%- include('../partials/search', { search, placeholder: 'Search posts...', clearUrl: '/admin' }) %>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="chronological-btn" title="Reset to chronological order"><i class="bi bi-sort-down me-1"></i>Chronological</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="randomize-btn" title="Randomize post order"><i class="bi bi-shuffle me-1"></i>Randomize</button>
             <a href="/posts/create" class="btn btn-primary btn-sm">
               <i class="bi bi-plus me-1"></i>Create Post
@@ -163,6 +164,33 @@ document.addEventListener('DOMContentLoaded', function() {
       .finally(() => {
         randomizeBtn.disabled = false;
         randomizeBtn.innerHTML = '<i class="bi bi-shuffle me-1"></i>Randomize';
+      });
+    });
+  }
+
+  // Chronological order button
+  var chronoBtn = document.getElementById('chronological-btn');
+  if (chronoBtn) {
+    chronoBtn.addEventListener('click', function() {
+      if (!confirm('Reset all unpinned posts to chronological order (newest first)?')) return;
+      chronoBtn.disabled = true;
+      chronoBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Resetting...';
+      fetch('/api/posts/reset-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) location.reload();
+        else alert('Error: ' + (data.error || 'Unknown error'));
+      })
+      .catch(function(err) {
+        console.error(err);
+        alert('Error resetting order');
+      })
+      .finally(function() {
+        chronoBtn.disabled = false;
+        chronoBtn.innerHTML = '<i class="bi bi-sort-down me-1"></i>Chronological';
       });
     });
   }
