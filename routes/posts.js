@@ -3,6 +3,7 @@ const router = express.Router();
 const { Post, User } = require('../models');
 const { ensureAuthenticated, canManagePosts } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const { csrfValidate } = require('../middleware/csrf');
 
 // Check if a YouTube video allows embedding via oEmbed
 async function checkYouTubeEmbeddable(videoId) {
@@ -37,7 +38,7 @@ router.get('/create', ensureAuthenticated, (req, res) => {
 });
 
 // Create post handler
-router.post('/create', ensureAuthenticated, handleUpload, async (req, res) => {
+router.post("/create", ensureAuthenticated, handleUpload, csrfValidate, async (req, res) => {
   try {
     const { title, content, sourceType, sourceUrl, linkUrl } = req.body;
     const isManager = ['editor', 'admin'].includes(req.user.role);
@@ -133,7 +134,7 @@ router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
 });
 
 // Update post handler
-router.post('/:id/edit', ensureAuthenticated, handleUpload, async (req, res) => {
+router.post("/:id/edit", ensureAuthenticated, handleUpload, csrfValidate, async (req, res) => {
   try {
     const post = await Post.findByPk(req.params.id);
     
