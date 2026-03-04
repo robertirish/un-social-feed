@@ -36,6 +36,12 @@
       height: 100%;
       width: max-content;
       will-change: transform;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .scroll-track.ready {
+      opacity: 1;
     }
 
     .scroll-track.animate {
@@ -262,20 +268,11 @@
       for (let i = 0; i < posts.length; i += ROWS) {
         columns.push(posts.slice(i, i + ROWS));
       }
-      const heightPatterns = [
-        [0.50, 0.25, 0.25], [0.25, 0.50, 0.25], [0.25, 0.25, 0.50],
-        [0.22, 0.48, 0.30], [0.45, 0.30, 0.25], [0.28, 0.22, 0.50],
-        [0.50, 0.28, 0.22], [0.22, 0.50, 0.28], [0.30, 0.22, 0.48],
-        [0.48, 0.22, 0.30], [0.25, 0.45, 0.30], [0.30, 0.25, 0.45],
-      ];
     %>
     <div class="scroll-wrapper">
       <div class="scroll-track" id="scrollTrack">
         <% for (let copy = 0; copy < 2; copy++) { %>
           <% columns.forEach((col, colIdx) => { %>
-            <%
-              const pattern = heightPatterns[colIdx % heightPatterns.length];
-            %>
             <div class="scroll-column">
               <% col.forEach((post, rowIdx) => { %>
                 <%
@@ -286,11 +283,8 @@
                     : null;
                   const isYouTube = post.sourceType === 'youtube' && post.sourceId;
                   const hasMedia = !!(imgSrc || isYouTube);
-                  const ratio = col.length === 1 ? 1 : (col.length === 2 ? [0.55, 0.45][rowIdx] : pattern[rowIdx]);
-                  const totalGap = (col.length - 1) + 1.5;
-                  const heightCalc = 'calc(' + ratio + ' * (100vh - ' + totalGap + 'rem))';
                 %>
-                <div class="feed-card<%= hasMedia ? '' : ' no-media' %>" style="height:<%= heightCalc %>">
+                <div class="feed-card<%= hasMedia ? '' : ' no-media' %>" data-has-media="<%= hasMedia %>">
                   <% if (hasMedia) { %>
                     <div class="feed-card-media">
                       <img
@@ -331,11 +325,58 @@
       var images = track.querySelectorAll('.feed-card-media img');
       var loaded = 0;
       var total = images.length;
+      var GAP = 16;
+      var PADDING = 12;
+      var DEFAULT_RATIO = 0.75;
+      var MIN_RATIO = 0.4;
+      var MAX_RATIO = 1.8;
+
+      function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
+      }
+
+      function distributeHeights() {
+        var viewportHeight = window.innerHeight;
+        var columns = track.querySelectorAll('.scroll-column');
+
+        columns.forEach(function(col) {
+          var cards = col.querySelectorAll('.feed-card');
+          var n = cards.length;
+          if (n === 0) return;
+
+          var totalGap = (n - 1) * GAP + PADDING * 2;
+          var available = viewportHeight - totalGap;
+
+          /* Collect natural aspect ratio (h/w) per card */
+          var ratios = [];
+          cards.forEach(function(card) {
+            var img = card.querySelector('.feed-card-media img');
+            if (img && img.naturalWidth > 0 && img.naturalHeight > 0) {
+              ratios.push(clamp(img.naturalHeight / img.naturalWidth, MIN_RATIO, MAX_RATIO));
+            } else {
+              ratios.push(DEFAULT_RATIO);
+            }
+          });
+
+          /* Natural height each card would want at its current width */
+          var cardWidth = cards[0].offsetWidth || 300;
+          var naturalHeights = ratios.map(function(r) { return r * cardWidth; });
+          var totalNatural = naturalHeights.reduce(function(a, b) { return a + b; }, 0);
+
+          /* Scale proportionally so column fills the viewport */
+          var scale = available / totalNatural;
+          cards.forEach(function(card, idx) {
+            card.style.height = Math.round(naturalHeights[idx] * scale) + 'px';
+          });
+        });
+      }
 
       function startScroll() {
+        distributeHeights();
+        track.classList.add('ready');
+
         var contentWidth = track.scrollWidth / 2;
         var viewportWidth = track.parentElement.offsetWidth;
-
         if (contentWidth <= viewportWidth) return;
 
         var speed = 40;
@@ -360,7 +401,7 @@
             img.addEventListener('error', onImageReady);
           }
         });
-        setTimeout(startScroll, 3000);
+        setTimeout(startScroll, 5000);
       }
     });
   </script>
