@@ -1,196 +1,163 @@
 <%- include('../partials/header') %>
 
-<div class="d-flex">
-  <%- include('../partials/sidebar', { active: 'embed' }) %>
-  
-  <div class="main-content">
-    <div class="content-header">
-      <h4 class="mb-0">Embed Code</h4>
-    </div>
-    
-    <div class="content-body">
-      <%- include('../partials/messages') %>
+<h2>Embed Code</h2>
 
-      <!-- Style selector tabs (hidden while only carousel is active)
-      <ul class="nav nav-tabs mb-4" id="embedTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="carousel-tab" data-bs-toggle="tab" data-bs-target="#carousel-panel" type="button" role="tab">
-            <i class="bi bi-play-circle me-1"></i>Carousel (Auto-Scroll)
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="classic-tab" data-bs-toggle="tab" data-bs-target="#classic-panel" type="button" role="tab">
-            <i class="bi bi-grid-3x3-gap me-1"></i>Classic (Masonry Grid)
-          </button>
-        </li>
-      </ul>
-      -->
+<!-- Style selector tabs (hidden while only carousel is active)
+<ul class="nav nav-tabs mb-4" id="embedTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="carousel-tab" data-bs-toggle="tab" data-bs-target="#carousel-panel" type="button" role="tab">
+      <i class="bi bi-play-circle me-1"></i>Carousel (Auto-Scroll)
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="classic-tab" data-bs-toggle="tab" data-bs-target="#classic-panel" type="button" role="tab">
+      <i class="bi bi-grid-3x3-gap me-1"></i>Classic (Masonry Grid)
+    </button>
+  </li>
+</ul>
+-->
 
-      <div class="tab-content" id="embedTabContent">
+<div class="tab-content" id="embedTabContent">
 
-        <!-- ── Carousel style ───────────────────────── -->
-        <div class="tab-pane fade show active" id="carousel-panel" role="tabpanel">
-          <div class="row">
-            <div class="col-lg-7">
-              <div class="card mb-4">
-                <div class="card-header">
-                  <h6 class="mb-0">Carousel Embed Code</h6>
-                </div>
-                <div class="card-body">
-                  <p class="text-muted small mb-3">
-                    Displays a horizontal auto-scrolling carousel with hover overlays. 
-                    Pauses on hover so users can read and click. Set the iframe <code>height</code> to control the carousel size.
-                  </p>
-                  <div class="position-relative">
-                    <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all;"><code id="embed-carousel">&lt;iframe src="<%= baseUrl %>/embed" style="width:100%;height:400px;border:none;" title="Social Feed"&gt;&lt;/iframe&gt;</code></pre>
-                    <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyEl('embed-carousel', this)">
-                      <i class="bi bi-clipboard me-1"></i>Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card mb-4">
-                <div class="card-header">
-                  <h6 class="mb-0">Customization</h6>
-                </div>
-                <div class="card-body">
-                  <h6 class="small text-muted mb-2">Height</h6>
-                  <p class="small mb-3">
-                    Change the <code>height</code> value to control how tall the carousel appears. Cards will scale to fill the available height in two rows.
-                  </p>
-                  <h6 class="small text-muted mb-2">Responsive Width</h6>
-                  <p class="small mb-0">
-                    The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-5">
-              <div class="card">
-                <div class="card-header">
-                  <h6 class="mb-0">Preview</h6>
-                </div>
-                <div class="card-body p-0">
-                  <iframe 
-                    src="<%= baseUrl %>/embed" 
-                    style="width: 100%; height: 400px; border: none;"
-                    title="Carousel Preview">
-                  </iframe>
-                </div>
-              </div>
+  <!-- ── Carousel style ───────────────────────── -->
+  <div class="tab-pane fade show active" id="carousel-panel" role="tabpanel">
+    <div class="row">
+      <div class="col-lg-7">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">Carousel Embed Code</h6>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-3">
+              Displays a horizontal auto-scrolling carousel with hover overlays.
+              Pauses on hover so users can read and click. Set the iframe <code>height</code> to control the carousel size.
+            </p>
+            <div class="position-relative">
+              <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all;"><code id="embed-carousel">&lt;iframe src="<%= baseUrl %>/embed" style="width:100%;height:400px;border:none;" title="Social Feed"&gt;&lt;/iframe&gt;</code></pre>
+              <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyEl('embed-carousel', this)">
+                <i class="bi bi-clipboard me-1"></i>Copy
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Classic style hidden ──────────────────────────
-        <div class="tab-pane fade" id="classic-panel" role="tabpanel">
-          <div class="row">
-            <div class="col-lg-7">
-              <div class="card mb-4">
-                <div class="card-header">
-                  <h6 class="mb-0">Classic Embed Code</h6>
-                </div>
-                <div class="card-body">
-                  <p class="text-muted small mb-3">
-                    Displays a vertical masonry grid with infinite scroll. 
-                    Best for full-page embeds or tall content areas.
-                  </p>
-                  <div class="position-relative">
-                    <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all;"><code id="embed-classic">&lt;iframe src="<%= baseUrl %>/embed/classic" style="width:100%;min-height:600px;border:none;" title="Social Feed"&gt;&lt;/iframe&gt;</code></pre>
-                    <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyEl('embed-classic', this)">
-                      <i class="bi bi-clipboard me-1"></i>Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card mb-4">
-                <div class="card-header">
-                  <h6 class="mb-0">Auto-Resize Embed Code (Recommended)</h6>
-                </div>
-                <div class="card-body">
-                  <p class="text-muted small mb-3">
-                    If your site allows inline scripts, use this code to automatically resize the iframe to match the feed height:
-                  </p>
-                  <div class="position-relative">
-                    <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all; font-size: 0.8rem;"><code id="embed-classic-auto">&lt;iframe id="un-social-feed" src="<%= baseUrl %>/embed/classic" style="width:100%;border:none;min-height:400px;" title="Social Feed"&gt;&lt;/iframe&gt;
-&lt;script&gt;
-window.addEventListener('message', function(e) {
-  if (e.data && e.data.type === 'resize') {
-    document.getElementById('un-social-feed').style.height = e.data.height + 'px';
-  }
-});
-&lt;/script&gt;</code></pre>
-                    <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyEl('embed-classic-auto', this)">
-                      <i class="bi bi-clipboard me-1"></i>Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card mb-4">
-                <div class="card-header">
-                  <h6 class="mb-0">Customization</h6>
-                </div>
-                <div class="card-body">
-                  <h6 class="small text-muted mb-2">Height</h6>
-                  <p class="small mb-3">
-                    For the basic embed, adjust <code>min-height</code>. For the auto-resize version, the iframe expands to fit content automatically.
-                  </p>
-                  <h6 class="small text-muted mb-2">Responsive Width</h6>
-                  <p class="small mb-0">
-                    The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-5">
-              <div class="card">
-                <div class="card-header">
-                  <h6 class="mb-0">Preview</h6>
-                </div>
-                <div class="card-body p-0">
-                  <iframe 
-                    id="classic-preview-iframe"
-                    src="<%= baseUrl %>/embed/classic" 
-                    style="width: 100%; min-height: 500px; border: none;"
-                    title="Classic Preview">
-                  </iframe>
-                </div>
-              </div>
-            </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">Customization</h6>
+          </div>
+          <div class="card-body">
+            <h6 class="small text-muted mb-2">Height</h6>
+            <p class="small mb-3">
+              Change the <code>height</code> value to control how tall the carousel appears. Cards will scale to fill the available height in two rows.
+            </p>
+            <h6 class="small text-muted mb-2">Responsive Width</h6>
+            <p class="small mb-0">
+              The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
+            </p>
           </div>
         </div>
-        -->
+      </div>
 
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">Preview</h6>
+          </div>
+          <div class="card-body p-0">
+            <iframe
+              src="<%= baseUrl %>/embed"
+              style="width: 100%; height: 400px; border: none;"
+              title="Carousel Preview">
+            </iframe>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Classic style hidden ──────────────────────────
+  <div class="tab-pane fade" id="classic-panel" role="tabpanel">
+    <div class="row">
+      <div class="col-lg-7">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">Classic Embed Code</h6>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-3">
+              Displays a vertical masonry grid with infinite scroll.
+              Best for full-page embeds or tall content areas.
+            </p>
+            <div class="position-relative">
+              <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all;"><code id="embed-classic">&lt;iframe src="<%= baseUrl %>/embed/classic" style="width:100%;min-height:600px;border:none;" title="Social Feed"&gt;&lt;/iframe&gt;</code></pre>
+              <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyEl('embed-classic', this)">
+                <i class="bi bi-clipboard me-1"></i>Copy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">Auto-Resize Embed Code (Recommended)</h6>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-3">
+              If your site allows inline scripts, use this code to automatically resize the iframe to match the feed height:
+            </p>
+            <div class="position-relative">
+              <pre class="p-3 bg-light border rounded mb-0" style="white-space: pre-wrap; word-break: break-all; font-size: 0.8rem;"><code id="embed-classic-auto">&lt;iframe id="un-social-feed" src="<%= baseUrl %>/embed/classic" style="width:100%;border:none;min-height:400px;" title="Social Feed"&gt;&lt;/iframe&gt;
+&lt;script&gt;
+window.addEventListener('message', function(e) {
+if (e.data && e.data.type === 'resize') {
+  document.getElementById('un-social-feed').style.height = e.data.height + 'px';
+}
+});
+&lt;/script&gt;</code></pre>
+              <button type="button" class="btn btn-sm btn-primary position-absolute" style="top: 0.5rem; right: 0.5rem;" onclick="copyEl('embed-classic-auto', this)">
+                <i class="bi bi-clipboard me-1"></i>Copy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">Customization</h6>
+          </div>
+          <div class="card-body">
+            <h6 class="small text-muted mb-2">Height</h6>
+            <p class="small mb-3">
+              For the basic embed, adjust <code>min-height</code>. For the auto-resize version, the iframe expands to fit content automatically.
+            </p>
+            <h6 class="small text-muted mb-2">Responsive Width</h6>
+            <p class="small mb-0">
+              The default <code>width: 100%</code> makes the feed responsive. You can set a fixed width if needed.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">Preview</h6>
+          </div>
+          <div class="card-body p-0">
+            <iframe
+              id="classic-preview-iframe"
+              src="<%= baseUrl %>/embed/classic"
+              style="width: 100%; min-height: 500px; border: none;"
+              title="Classic Preview">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  -->
+
 </div>
-
-<style>
-  #embedTabs .nav-link {
-    color: #666;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 0.75rem 1.25rem;
-  }
-
-  #embedTabs .nav-link:hover {
-    color: var(--un-blue);
-    border-color: transparent;
-  }
-
-  #embedTabs .nav-link.active {
-    color: var(--un-blue);
-    background: transparent;
-    border-color: transparent;
-    border-bottom: 2px solid var(--un-blue);
-  }
-</style>
 
 <script>
 function copyEl(id, btn) {

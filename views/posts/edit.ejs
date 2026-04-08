@@ -1,154 +1,144 @@
 <%- include('../partials/header') %>
 
-<div class="d-flex">
-  <%- include('../partials/sidebar', { active: '' }) %>
-  
-  <div class="main-content">
-    <div class="content-header d-flex align-items-center justify-content-between">
-      <h4 class="mb-0">Edit Post</h4>
-      <span class="badge badge-<%= post.status %> text-capitalize"><%= post.status %></span>
-    </div>
-    
-    <div class="content-body">
-      <%- include('../partials/messages') %>
-      
-      <div class="row">
-        <div class="col-lg-8">
-          <form action="/posts/<%= post.id %>/edit" method="POST" enctype="multipart/form-data" id="post-form">
-            <div class="card mb-4">
-              <div class="card-header">
-                <h6 class="mb-0">Post Details</h6>
-              </div>
-              <div class="card-body">
-                <div class="mb-3">
-                  <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="title" name="title" value="<%= post.title %>" required>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="linkUrl" class="form-label">Link URL</label>
-                  <input type="url" class="form-control" id="linkUrl" name="linkUrl" value="<%= post.linkUrl || '' %>" placeholder="https://example.com">
-                  <div class="form-text">Clicking the title or image in the feed will open this URL</div>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="image" class="form-label">Image</label>
-                  <% if (post.imageUrl) { %>
-                    <div class="mb-2">
-                      <img src="<%= post.imageUrl %>" alt="" class="img-thumbnail" style="max-height: 150px;">
-                    </div>
-                  <% } %>
-                  <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                  <div class="form-text">Leave empty to keep current image</div>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="content" class="form-label">Content</label>
-                  <div id="editor"></div>
-                  <input type="hidden" name="content" id="content">
-                </div>
-              </div>
-            </div>
-            
-            <% if (post.sourceType !== 'original') { %>
-            <div class="card mb-4">
-              <div class="card-header">
-                <h6 class="mb-0">Source</h6>
-              </div>
-              <div class="card-body">
-                <input type="hidden" name="sourceType" value="<%= post.sourceType %>">
-                
-                <div class="mb-3">
-                  <label class="form-label">Source Type</label>
-                  <div>
-                    <span class="badge source-<%= post.sourceType %>" style="font-size: 0.875rem;">
-                      <% if (post.sourceType === 'youtube') { %>
-                        <i class="bi bi-youtube me-1"></i>YouTube
-                      <% } else if (post.sourceType === 'twitter') { %>
-                        <i class="bi bi-twitter-x me-1"></i>Twitter/X
-                      <% } else if (post.sourceType === 'instagram') { %>
-                        <i class="bi bi-instagram me-1"></i>Instagram
-                      <% } %>
-                    </span>
-                  </div>
-                </div>
-                
-                <div class="mb-0">
-                  <label for="sourceUrl" class="form-label">Source URL</label>
-                  <input type="url" class="form-control" id="sourceUrl" name="sourceUrl" value="<%= post.sourceUrl || '' %>" placeholder="Paste the URL here">
-                </div>
-              </div>
-            </div>
-            <% } else { %>
-              <input type="hidden" name="sourceType" value="original">
-            <% } %>
-            
-            <div class="d-flex justify-content-between">
-              <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check me-1"></i>Save Changes
-              </button>
-            </div>
-          </form>
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="mb-0">Edit Post</h2>
+  <span class="badge badge-<%= post.status %> text-capitalize"><%= post.status %></span>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <form action="/posts/<%= post.id %>/edit" method="POST" enctype="multipart/form-data" id="post-form">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="mb-0">Post Details</h6>
         </div>
-        
-        <div class="col-lg-4">
-          <div class="card mb-4">
-            <div class="card-header">
-              <h6 class="mb-0">Post Info</h6>
-            </div>
-            <div class="card-body">
-              <div class="small mb-2">
-                <strong>Created:</strong> <%= new Date(post.createdAt).toLocaleString() %>
-              </div>
-              <div class="small mb-2">
-                <strong>Last Updated:</strong> <%= new Date(post.updatedAt).toLocaleString() %>
-              </div>
-              <% if (post.isPinned) { %>
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-pin-fill text-warning me-2"></i>
-                  <span class="small">This post is pinned</span>
-                </div>
-              <% } %>
-            </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="title" name="title" value="<%= post.title %>" required>
           </div>
-          
-          <% if (isManager) { %>
-            <div class="card">
-              <div class="card-header">
-                <h6 class="mb-0">Quick Actions</h6>
+
+          <div class="mb-3">
+            <label for="linkUrl" class="form-label">Link URL</label>
+            <input type="url" class="form-control" id="linkUrl" name="linkUrl" value="<%= post.linkUrl || '' %>" placeholder="https://example.com">
+            <div class="form-text">Clicking the title or image in the feed will open this URL</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="image" class="form-label">Image</label>
+            <% if (post.imageUrl) { %>
+              <div class="mb-2">
+                <img src="<%= post.imageUrl %>" alt="" class="img-thumbnail" style="max-height: 150px;">
               </div>
-              <div class="card-body">
-                <div class="d-grid gap-2">
-                  <% if (post.status !== 'approved') { %>
-                    <form action="/posts/<%= post.id %>/approve" method="POST">
-                      <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-check me-1"></i>Approve
-                      </button>
-                    </form>
-                  <% } %>
-                  
-                  <% if (post.status !== 'rejected') { %>
-                    <form action="/posts/<%= post.id %>/reject" method="POST">
-                      <button type="submit" class="btn btn-danger w-100">
-                        <i class="bi bi-x me-1"></i>Reject
-                      </button>
-                    </form>
-                  <% } %>
-                  
-                  <form action="/posts/<%= post.id %>/pin" method="POST">
-                    <button type="submit" class="btn <%= post.isPinned ? 'btn-warning' : 'btn-outline-warning' %> w-100">
-                      <i class="bi bi-pin<%= post.isPinned ? '-fill' : '' %> me-1"></i>
-                      <%= post.isPinned ? 'Unpin' : 'Pin' %>
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          <% } %>
+            <% } %>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <div class="form-text">Leave empty to keep current image</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <div id="editor"></div>
+            <input type="hidden" name="content" id="content">
+          </div>
         </div>
       </div>
+
+      <% if (post.sourceType !== 'original') { %>
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="mb-0">Source</h6>
+        </div>
+        <div class="card-body">
+          <input type="hidden" name="sourceType" value="<%= post.sourceType %>">
+
+          <div class="mb-3">
+            <label class="form-label">Source Type</label>
+            <div>
+              <span class="badge source-<%= post.sourceType %>" style="font-size: 0.875rem;">
+                <% if (post.sourceType === 'youtube') { %>
+                  <i class="bi bi-youtube me-1"></i>YouTube
+                <% } else if (post.sourceType === 'twitter') { %>
+                  <i class="bi bi-twitter-x me-1"></i>Twitter/X
+                <% } else if (post.sourceType === 'instagram') { %>
+                  <i class="bi bi-instagram me-1"></i>Instagram
+                <% } %>
+              </span>
+            </div>
+          </div>
+
+          <div class="mb-0">
+            <label for="sourceUrl" class="form-label">Source URL</label>
+            <input type="url" class="form-control" id="sourceUrl" name="sourceUrl" value="<%= post.sourceUrl || '' %>" placeholder="Paste the URL here">
+          </div>
+        </div>
+      </div>
+      <% } else { %>
+        <input type="hidden" name="sourceType" value="original">
+      <% } %>
+
+      <div class="d-flex justify-content-between">
+        <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check me-1"></i>Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">Post Info</h6>
+      </div>
+      <div class="card-body">
+        <div class="small mb-2">
+          <strong>Created:</strong> <%= new Date(post.createdAt).toLocaleString() %>
+        </div>
+        <div class="small mb-2">
+          <strong>Last Updated:</strong> <%= new Date(post.updatedAt).toLocaleString() %>
+        </div>
+        <% if (post.isPinned) { %>
+          <div class="d-flex align-items-center">
+            <i class="bi bi-pin-fill text-warning me-2"></i>
+            <span class="small">This post is pinned</span>
+          </div>
+        <% } %>
+      </div>
     </div>
+
+    <% if (isManager) { %>
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <% if (post.status !== 'approved') { %>
+              <form action="/posts/<%= post.id %>/approve" method="POST">
+                <button type="submit" class="btn btn-success w-100">
+                  <i class="bi bi-check me-1"></i>Approve
+                </button>
+              </form>
+            <% } %>
+
+            <% if (post.status !== 'rejected') { %>
+              <form action="/posts/<%= post.id %>/reject" method="POST">
+                <button type="submit" class="btn btn-danger w-100">
+                  <i class="bi bi-x me-1"></i>Reject
+                </button>
+              </form>
+            <% } %>
+
+            <form action="/posts/<%= post.id %>/pin" method="POST">
+              <button type="submit" class="btn <%= post.isPinned ? 'btn-warning' : 'btn-outline-warning' %> w-100">
+                <i class="bi bi-pin<%= post.isPinned ? '-fill' : '' %> me-1"></i>
+                <%= post.isPinned ? 'Unpin' : 'Pin' %>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% } %>
   </div>
 </div>
 
@@ -168,12 +158,12 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     placeholder: 'Write your post content here...'
   });
-  
+
   // Set existing content
   <% if (post.content) { %>
     quill.root.innerHTML = <%- JSON.stringify(post.content) %>;
   <% } %>
-  
+
   // Update hidden input on form submit
   document.getElementById('post-form').addEventListener('submit', function() {
     document.getElementById('content').value = quill.root.innerHTML;

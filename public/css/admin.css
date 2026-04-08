@@ -1,0 +1,532 @@
+/* ============================================================
+   UN Social Feed CMS — admin panel
+   Styled to match un-peace-dictionary visual language
+   ============================================================ */
+
+:root {
+    --un-blue: #009edb;
+    --un-blue-dark: #0077a8;
+    --un-blue-light: #e6f4fa;
+    --color-bg: #fff;
+    --color-text: #333;
+    --color-muted: #666;
+    --color-border: #e5e5e5;
+    --color-surface: #fafafa;
+    --color-success: #28a745;
+    --color-success-bg: #f0fdf4;
+    --color-error: #dc3545;
+    --color-error-bg: #fef2f2;
+    --status-pending: #f0ad4e;
+    --status-approved: #28a745;
+    --status-rejected: #dc3545;
+    --font-sans: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-heading: "Roboto Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --radius: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-surface);
+    margin: 0;
+}
+
+a { color: var(--un-blue); text-decoration: none; }
+a:hover { color: var(--un-blue-dark); }
+
+h1, h2, h3, h4, h5, h6 { font-weight: 500; color: var(--color-text); margin: 0; }
+
+h2 {
+    font-family: var(--font-heading);
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+h3 {
+    font-size: 1.1875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 2rem 0;
+}
+
+
+/* ---- header ---- */
+
+.admin-header {
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: var(--un-blue);
+    border-bottom: none;
+}
+
+.admin-logo {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: #fff;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-logo:hover { color: rgba(255,255,255,0.85); }
+
+.admin-logo-icon {
+    height: 28px;
+    width: 28px;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.admin-nav a {
+    color: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.15s;
+}
+
+.admin-nav a:hover { color: #fff; }
+
+.admin-sep {
+    color: rgba(255,255,255,0.35);
+    user-select: none;
+}
+
+.admin-nav .pending-count {
+    background: var(--status-pending);
+    color: #fff;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.15rem;
+    animation: pulse-pending 2s infinite;
+}
+
+
+/* ---- main ---- */
+
+.admin-main {
+    padding: 2rem 2.5rem 6rem;
+    background: var(--color-bg);
+    min-height: calc(100vh - 56px);
+}
+
+
+/* ---- flash ---- */
+
+.flash-messages { margin-bottom: 1.5rem; }
+
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    font-size: 1.0625rem;
+    border: none;
+}
+
+.flash-error { background: var(--color-error-bg); color: var(--color-error); }
+.flash-success { background: var(--color-success-bg); color: var(--color-success); }
+
+/* Bootstrap alert overrides */
+.alert {
+    border: none;
+    border-radius: var(--radius);
+}
+
+
+/* ---- forms ---- */
+
+.form-control,
+.form-select {
+    font-family: var(--font-sans);
+    border-radius: var(--radius);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--un-blue);
+    box-shadow: 0 0 0 3px rgba(0, 158, 219, 0.15);
+}
+
+
+/* ---- buttons ---- */
+
+.btn {
+    font-family: var(--font-sans);
+    border-radius: var(--radius);
+}
+
+.btn-primary {
+    background-color: var(--un-blue);
+    border-color: var(--un-blue);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--un-blue-dark);
+    border-color: var(--un-blue-dark);
+}
+
+.btn-outline-primary {
+    color: var(--un-blue);
+    border-color: var(--un-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--un-blue);
+    border-color: var(--un-blue);
+}
+
+.text-primary { color: var(--un-blue) !important; }
+.bg-primary { background-color: var(--un-blue) !important; }
+
+
+/* ---- cards ---- */
+
+.card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: none;
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 500;
+}
+
+
+/* ---- stat cards ---- */
+
+.stat-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+}
+
+.stat-card .stat-value {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--un-blue);
+}
+
+.stat-card .stat-label {
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+
+/* ---- status badges ---- */
+
+.badge-pending { background-color: var(--status-pending); color: #fff; }
+.badge-approved { background-color: var(--status-approved); color: #fff; }
+.badge-rejected { background-color: var(--status-rejected); color: #fff; }
+
+.border-status-pending { border-left: 4px solid var(--status-pending) !important; }
+.border-status-approved { border-left: 4px solid var(--status-approved) !important; }
+.border-status-rejected { border-left: 4px solid var(--status-rejected) !important; }
+
+
+/* ---- post cards ---- */
+
+.post-card {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.post-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.post-card.dragging {
+    opacity: 0.5;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.post-card .drag-handle {
+    cursor: grab;
+    color: #ccc;
+    padding: 0.5rem;
+}
+
+.post-card .drag-handle:hover {
+    color: #999;
+}
+
+.post-card.pinned {
+    background: #fffbeb;
+    border-color: #fcd34d;
+}
+
+.post-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#pinned-posts-list {
+    padding-bottom: 1rem !important;
+}
+
+#pinned-posts-list .post-card:last-child {
+    margin-bottom: 0;
+}
+
+
+/* ---- source type icons ---- */
+
+.source-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.source-original { background: #e5e5e5; color: #666; }
+.source-instagram { background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF); color: #fff; }
+.source-twitter { background: #1DA1F2; color: #fff; }
+.source-youtube { background: #FF0000; color: #fff; }
+
+
+/* ---- tables ---- */
+
+.table {
+    border-color: var(--color-border);
+}
+
+.table thead th {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+
+/* ---- user avatar ---- */
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--un-blue-light);
+    color: var(--un-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+
+/* ---- role badges ---- */
+
+.role-admin { background: var(--un-blue); }
+.role-editor { background: #6c757d; }
+.role-user { background: #adb5bd; }
+
+
+/* ---- Quill editor ---- */
+
+.ql-container {
+    min-height: 200px;
+    font-family: var(--font-sans);
+}
+
+.ql-editor {
+    min-height: 200px;
+}
+
+
+/* ---- nav tabs ---- */
+
+.nav-tabs .nav-link {
+    color: #666;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1.25rem;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--un-blue);
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--un-blue);
+    background: transparent;
+    border-color: transparent;
+    border-bottom: 2px solid var(--un-blue);
+}
+
+.quill-editor {
+    background: #fff;
+}
+
+.quill-editor .ql-container {
+    min-height: 150px;
+}
+
+
+/* ---- login ---- */
+
+.login-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+}
+
+.login-form {
+    width: 380px;
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.login-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.login-header img {
+    flex-shrink: 0;
+}
+
+.login-form h1 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--un-blue);
+}
+
+.login-subtitle {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.login-form .form-row { margin-bottom: 1rem; }
+
+.login-form label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+    color: #222;
+}
+
+.login-form input[type="text"],
+.login-form input[type="email"],
+.login-form input[type="password"] {
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    color: var(--color-text);
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--un-blue);
+    box-shadow: 0 0 0 3px rgba(0, 158, 219, 0.15);
+}
+
+.login-form button[type="submit"] {
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: var(--un-blue);
+    color: #fff;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: background 0.15s;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.login-form button[type="submit"]:hover { background: var(--un-blue-dark); }
+
+.login-form .login-link {
+    display: block;
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: var(--color-muted);
+    text-align: center;
+}
+
+.login-form .login-link:hover { color: var(--un-blue); }
+.login-form .login-link a { color: var(--un-blue); }
+
+
+/* ---- pending count animation ---- */
+
+@keyframes pulse-pending {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+
+/* ---- responsive ---- */
+
+@media (max-width: 600px) {
+    .admin-header { flex-direction: column; align-items: flex-start; height: auto; padding: 0.75rem 1rem; }
+    .admin-main { padding: 1.5rem 1rem 4rem; }
+}

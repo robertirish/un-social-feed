@@ -1,82 +1,72 @@
 <%- include('../partials/header') %>
 
-<div class="d-flex">
-  <%- include('../partials/sidebar', { active: currentStatus }) %>
-  
-  <div class="main-content">
-    <div class="content-header d-flex align-items-center justify-content-between">
-      <h4 class="mb-0"><%= title %></h4>
-      <div class="d-flex align-items-center gap-3">
-        <%- include('../partials/search', { search, placeholder: 'Search posts...', clearUrl: '/admin/posts/' + currentStatus }) %>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="chronological-btn" title="Reset to chronological order"><i class="bi bi-sort-down me-1"></i>Chronological</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="randomize-btn" title="Randomize post order"><i class="bi bi-shuffle me-1"></i>Randomize</button>
-        <div class="btn-group">
-          <a href="/admin/posts/all" class="btn btn-sm <%= currentStatus === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>">All</a>
-          <a href="/admin/posts/pending" class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline-secondary' %>">Pending</a>
-          <a href="/admin/posts/approved" class="btn btn-sm <%= currentStatus === 'approved' ? 'btn-primary' : 'btn-outline-secondary' %>">Approved</a>
-          <a href="/admin/posts/rejected" class="btn btn-sm <%= currentStatus === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' %>">Rejected</a>
-        </div>
-      </div>
-    </div>
-    
-    <div class="content-body">
-      <%- include('../partials/messages') %>
-      
-      <div class="card">
-        <div class="card-body p-0">
-          <% 
-            const pinnedPosts = posts.filter(p => p.isPinned);
-            const unpinnedPosts = posts.filter(p => !p.isPinned);
-          %>
-          
-          <% if (posts.length === 0) { %>
-            <div class="text-center py-5">
-              <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-              <p class="text-muted mt-3 mb-0">
-                <% if (search) { %>
-                  No posts found matching "<%= search %>"
-                <% } else { %>
-                  No <%= currentStatus === 'all' ? '' : currentStatus %> posts yet
-                <% } %>
-              </p>
-            </div>
-          <% } else { %>
-            <% if (pinnedPosts.length > 0) { %>
-              <div class="pinned-section">
-                <div class="section-label px-3 py-2 bg-light border-bottom">
-                  <i class="bi bi-pin-fill text-warning me-1"></i>
-                  <small class="text-muted fw-medium">Pinned Posts</small>
-                </div>
-                <div id="pinned-posts-list" class="p-3 pb-0">
-                  <% pinnedPosts.forEach((post, index) => { %>
-                    <%- include('../partials/post-card', { post, isManager: true }) %>
-                  <% }); %>
-                </div>
-              </div>
-            <% } %>
-            
-            <% if (unpinnedPosts.length > 0) { %>
-              <div class="unpinned-section">
-                <% if (pinnedPosts.length > 0) { %>
-                  <div class="section-label px-3 py-2 bg-light border-bottom border-top">
-                    <i class="bi bi-collection text-muted me-1"></i>
-                    <small class="text-muted fw-medium">All Posts</small>
-                  </div>
-                <% } %>
-                <div id="unpinned-posts-list" class="p-3">
-                  <% unpinnedPosts.forEach((post, index) => { %>
-                    <%- include('../partials/post-card', { post, isManager: true }) %>
-                  <% }); %>
-                </div>
-              </div>
-            <% } %>
-          <% } %>
-        </div>
-        
-        <%- include('../partials/pagination', { pagination }) %>
-      </div>
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="mb-0"><%= title %></h2>
+  <div class="d-flex align-items-center gap-3">
+    <%- include('../partials/search', { search, placeholder: 'Search posts...', clearUrl: '/admin/posts/' + currentStatus }) %>
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="chronological-btn" title="Reset to chronological order"><i class="bi bi-sort-down me-1"></i>Chronological</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="randomize-btn" title="Randomize post order"><i class="bi bi-shuffle me-1"></i>Randomize</button>
+    <div class="btn-group">
+      <a href="/admin/posts/all" class="btn btn-sm <%= currentStatus === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>">All</a>
+      <a href="/admin/posts/pending" class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline-secondary' %>">Pending</a>
+      <a href="/admin/posts/approved" class="btn btn-sm <%= currentStatus === 'approved' ? 'btn-primary' : 'btn-outline-secondary' %>">Approved</a>
+      <a href="/admin/posts/rejected" class="btn btn-sm <%= currentStatus === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' %>">Rejected</a>
     </div>
   </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <%
+      const pinnedPosts = posts.filter(p => p.isPinned);
+      const unpinnedPosts = posts.filter(p => !p.isPinned);
+    %>
+
+    <% if (posts.length === 0) { %>
+      <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-3 mb-0">
+          <% if (search) { %>
+            No posts found matching "<%= search %>"
+          <% } else { %>
+            No <%= currentStatus === 'all' ? '' : currentStatus %> posts yet
+          <% } %>
+        </p>
+      </div>
+    <% } else { %>
+      <% if (pinnedPosts.length > 0) { %>
+        <div class="pinned-section">
+          <div class="section-label px-3 py-2 bg-light border-bottom">
+            <i class="bi bi-pin-fill text-warning me-1"></i>
+            <small class="text-muted fw-medium">Pinned Posts</small>
+          </div>
+          <div id="pinned-posts-list" class="p-3 pb-0">
+            <% pinnedPosts.forEach((post, index) => { %>
+              <%- include('../partials/post-card', { post, isManager: true }) %>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (unpinnedPosts.length > 0) { %>
+        <div class="unpinned-section">
+          <% if (pinnedPosts.length > 0) { %>
+            <div class="section-label px-3 py-2 bg-light border-bottom border-top">
+              <i class="bi bi-collection text-muted me-1"></i>
+              <small class="text-muted fw-medium">All Posts</small>
+            </div>
+          <% } %>
+          <div id="unpinned-posts-list" class="p-3">
+            <% unpinnedPosts.forEach((post, index) => { %>
+              <%- include('../partials/post-card', { post, isManager: true }) %>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+
+  <%- include('../partials/pagination', { pagination }) %>
 </div>
 
 <script>
@@ -94,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  
+
   // Initialize sortable for unpinned posts
   const unpinnedList = document.getElementById('unpinned-posts-list');
   if (unpinnedList && typeof Sortable !== 'undefined') {
@@ -108,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  
+
   // Randomize order button
   const randomizeBtn = document.getElementById('randomize-btn');
   if (randomizeBtn) {
@@ -165,21 +155,21 @@ document.addEventListener('DOMContentLoaded', function() {
   function saveOrder() {
     const order = [];
     let sortIndex = 0;
-    
+
     // Pinned posts first
     if (pinnedList) {
       pinnedList.querySelectorAll('.post-card').forEach(item => {
         order.push({ id: item.dataset.id, sortOrder: sortIndex++ });
       });
     }
-    
+
     // Then unpinned posts
     if (unpinnedList) {
       unpinnedList.querySelectorAll('.post-card').forEach(item => {
         order.push({ id: item.dataset.id, sortOrder: sortIndex++ });
       });
     }
-    
+
     fetch('/api/posts/reorder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

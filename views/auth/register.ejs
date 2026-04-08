@@ -1,49 +1,97 @@
-<%- include('../partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Register | UN Social Feed</title>
+    <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/e/ee/UN_emblem_blue.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/32px-UN_emblem_blue.svg.png">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/180px-UN_emblem_blue.svg.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin.css">
+    <% if (typeof csrfToken !== 'undefined' && csrfToken) { %>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <% } %>
+</head>
+<body class="login-body">
+    <div class="login-form">
+        <div class="login-header">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/ee/UN_emblem_blue.svg" alt="UN" width="36" height="36">
+            <h1>UN Social Feed</h1>
+        </div>
+        <p class="login-subtitle">Create a new account</p>
 
-<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);">
-  <div class="card" style="width: 100%; max-width: 400px;">
-    <div class="card-body p-4">
-      <div class="text-center mb-4">
-        <h4 class="mb-1 d-flex align-items-center justify-content-center" style="color: var(--un-blue);">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/e/ee/UN_emblem_blue.svg" alt="UN" width="36" height="32" class="me-2">
-          UN Social Feed
-        </h4>
-        <p class="text-muted small">Create a new account</p>
-      </div>
-      
-      <%- include('../partials/messages') %>
-      
-      <form action="/auth/register" method="POST">
-        <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" name="name" value="<%= typeof name !== 'undefined' ? name : '' %>" required autofocus>
+        <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+        <div class="flash-messages">
+            <% success_msg.forEach(msg => { %>
+            <div class="flash flash-success"><%= msg %></div>
+            <% }) %>
         </div>
-        
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+        <% } %>
+        <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+        <div class="flash-messages">
+            <% error_msg.forEach(msg => { %>
+            <div class="flash flash-error"><%= msg %></div>
+            <% }) %>
         </div>
-        
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" name="password" required minlength="6">
-          <div class="form-text">Minimum 6 characters</div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error.length > 0) { %>
+        <div class="flash-messages">
+            <% error.forEach(msg => { %>
+            <div class="flash flash-error"><%= msg %></div>
+            <% }) %>
         </div>
-        
-        <div class="mb-3">
-          <label for="password2" class="form-label">Confirm Password</label>
-          <input type="password" class="form-control" id="password2" name="password2" required minlength="6">
+        <% } %>
+        <% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+        <div class="flash-messages">
+            <% errors.forEach(err => { %>
+            <div class="flash flash-error"><%= err.msg %></div>
+            <% }) %>
         </div>
-        
-        <button type="submit" class="btn btn-primary w-100">Create Account</button>
-      </form>
-      
-      <div class="text-center mt-3">
-        <span class="text-muted">Already have an account?</span>
-        <a href="/auth/login">Sign In</a>
-      </div>
+        <% } %>
+
+        <form action="/auth/register" method="POST">
+            <div class="form-row">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" value="<%= typeof name !== 'undefined' ? name : '' %>" required autofocus>
+            </div>
+            <div class="form-row">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+            </div>
+            <div class="form-row">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="6">
+            </div>
+            <div class="form-row">
+                <label for="password2">Confirm Password</label>
+                <input type="password" id="password2" name="password2" required minlength="6">
+            </div>
+            <button type="submit">Create Account</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="/auth/login">Sign In</a>
+        </div>
     </div>
-  </div>
-</div>
 
-<%- include('../partials/footer') %>
+    <script>
+    (function() {
+        var meta = document.querySelector('meta[name="csrf-token"]');
+        if (!meta) return;
+        var csrfToken = meta.getAttribute('content');
+        document.querySelectorAll('form').forEach(function(form) {
+            if (form.method && form.method.toUpperCase() === 'POST' && !form.querySelector('input[name="_csrf"]')) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = '_csrf';
+                input.value = csrfToken;
+                form.appendChild(input);
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,72 +1,60 @@
 <%- include('../partials/header') %>
 
-<div class="d-flex">
-  <%- include('../partials/sidebar', { active: 'account' }) %>
-  
-  <div class="main-content">
-    <div class="content-header">
-      <h4 class="mb-0">Account</h4>
+<h2>Account</h2>
+
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card mb-4">
+      <div class="card-header px-3 py-2">
+        <h6 class="mb-0">Profile</h6>
+      </div>
+      <div class="card-body">
+        <form action="/admin/account/profile" method="POST">
+          <div class="d-flex align-items-center mb-3">
+            <div class="user-avatar me-3" style="width: 48px; height: 48px; font-size: 1.25rem;">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+            <div>
+              <span class="badge role-<%= user.role %> text-capitalize"><%= user.role %></span>
+              <span class="text-muted small ms-2">
+                Member since <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %>
+              </span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
     </div>
-    
-    <div class="content-body">
-      <%- include('../partials/messages') %>
-      
-      <div class="row">
-        <div class="col-lg-6">
-          <div class="card mb-4">
-            <div class="card-header px-3 py-2">
-              <h6 class="mb-0">Profile</h6>
-            </div>
-            <div class="card-body">
-              <form action="/admin/account/profile" method="POST">
-                <div class="d-flex align-items-center mb-3">
-                  <div class="user-avatar me-3" style="width: 48px; height: 48px; font-size: 1.25rem;">
-                    <%= user.name.charAt(0).toUpperCase() %>
-                  </div>
-                  <div>
-                    <span class="badge role-<%= user.role %> text-capitalize"><%= user.role %></span>
-                    <span class="text-muted small ms-2">
-                      Member since <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %>
-                    </span>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="name" class="form-label">Name</label>
-                  <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
-                </div>
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Update Profile</button>
-              </form>
-            </div>
+
+    <div class="card">
+      <div class="card-header px-3 py-2">
+        <h6 class="mb-0">Change Password</h6>
+      </div>
+      <div class="card-body">
+        <form action="/admin/account/password" method="POST">
+          <div class="mb-3">
+            <label for="currentPassword" class="form-label">Current Password</label>
+            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
           </div>
-          
-          <div class="card">
-            <div class="card-header px-3 py-2">
-              <h6 class="mb-0">Change Password</h6>
-            </div>
-            <div class="card-body">
-              <form action="/admin/account/password" method="POST">
-                <div class="mb-3">
-                  <label for="currentPassword" class="form-label">Current Password</label>
-                  <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-                </div>
-                <div class="mb-3">
-                  <label for="newPassword" class="form-label">New Password</label>
-                  <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
-                  <div class="form-text">Minimum 6 characters</div>
-                </div>
-                <div class="mb-3">
-                  <label for="newPassword2" class="form-label">Confirm New Password</label>
-                  <input type="password" class="form-control" id="newPassword2" name="newPassword2" required minlength="6">
-                </div>
-                <button type="submit" class="btn btn-primary">Update Password</button>
-              </form>
-            </div>
+          <div class="mb-3">
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
+            <div class="form-text">Minimum 6 characters</div>
           </div>
-        </div>
+          <div class="mb-3">
+            <label for="newPassword2" class="form-label">Confirm New Password</label>
+            <input type="password" class="form-control" id="newPassword2" name="newPassword2" required minlength="6">
+          </div>
+          <button type="submit" class="btn btn-primary">Update Password</button>
+        </form>
       </div>
     </div>
   </div>

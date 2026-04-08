@@ -25,6 +25,14 @@ app.set('views', path.join(__dirname, 'views'));
 console.log('App initializing...');
 console.log('Views directory:', path.join(__dirname, 'views'));
 
+// Block search-engine indexing (CMS is not public, but allow embed content)
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/embed')) {
+    res.set('X-Robots-Tag', 'noindex, nofollow');
+  }
+  next();
+});
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

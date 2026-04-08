@@ -1,279 +1,238 @@
 <%- include('../partials/header') %>
 
-<div class="d-flex">
-  <%- include('../partials/sidebar', { active: 'create' }) %>
-  
-  <div class="main-content">
-    <div class="content-header">
-      <h4 class="mb-0">Create Post</h4>
-    </div>
-    
-    <div class="content-body">
-      <%- include('../partials/messages') %>
-      
-      <div class="row">
-        <div class="col-lg-8">
-          <!-- Post Type Tabs -->
-          <ul class="nav nav-tabs mb-4" id="postTypeTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="original-tab" data-bs-toggle="tab" data-bs-target="#original-panel" type="button" role="tab">
-                <i class="bi bi-file-text me-1"></i>Original
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="youtube-tab" data-bs-toggle="tab" data-bs-target="#youtube-panel" type="button" role="tab">
-                <i class="bi bi-youtube me-1"></i>YouTube
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="twitter-tab" data-bs-toggle="tab" data-bs-target="#twitter-panel" type="button" role="tab">
-                <i class="bi bi-twitter-x me-1"></i>Twitter/X
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="instagram-tab" data-bs-toggle="tab" data-bs-target="#instagram-panel" type="button" role="tab">
-                <i class="bi bi-instagram me-1"></i>Instagram
-              </button>
-            </li>
-          </ul>
-          
-          <div class="tab-content" id="postTypeContent">
-            <!-- Original Post -->
-            <div class="tab-pane fade show active" id="original-panel" role="tabpanel">
-              <form action="/posts/create" method="POST" enctype="multipart/form-data" class="post-form">
-                <input type="hidden" name="sourceType" value="original">
-                
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h6 class="mb-0">Original Post</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="mb-3">
-                      <label for="title-original" class="form-label">Title <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="title-original" name="title" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="linkUrl-original" class="form-label">Link URL</label>
-                      <input type="url" class="form-control" id="linkUrl-original" name="linkUrl" placeholder="https://example.com">
-                      <div class="form-text">Clicking the title or image in the feed will open this URL</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="image-original" class="form-label">Image</label>
-                      <input type="file" class="form-control" id="image-original" name="image" accept="image/*">
-                      <div class="form-text">Accepted formats: JPEG, PNG, GIF, WebP (max 10MB)</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label class="form-label">Content</label>
-                      <div id="editor-original" class="quill-editor"></div>
-                      <input type="hidden" name="content" class="content-input">
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="d-flex justify-content-between">
-                  <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check me-1"></i>
-                    <%= isManager ? 'Publish Post' : 'Submit for Review' %>
-                  </button>
-                </div>
-              </form>
-            </div>
-            
-            <!-- YouTube Post -->
-            <div class="tab-pane fade" id="youtube-panel" role="tabpanel">
-              <form action="/posts/create" method="POST" class="post-form">
-                <input type="hidden" name="sourceType" value="youtube">
-                
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h6 class="mb-0">YouTube Video</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="mb-3">
-                      <label for="sourceUrl-youtube" class="form-label">YouTube URL <span class="text-danger">*</span></label>
-                      <input type="url" class="form-control" id="sourceUrl-youtube" name="sourceUrl" placeholder="https://www.youtube.com/watch?v=..." required>
-                      <div class="form-text">Paste the YouTube video URL. The thumbnail will be fetched automatically.</div>
-                    </div>
-                    
-                    <div id="youtube-preview" class="mb-3" style="display: none;">
-                      <label class="form-label">Preview</label>
-                      <div class="ratio ratio-16x9">
-                        <iframe id="youtube-preview-iframe" src="" frameborder="0" allowfullscreen></iframe>
-                      </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="title-youtube" class="form-label">Title <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="title-youtube" name="title" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label class="form-label">Description (optional)</label>
-                      <div id="editor-youtube" class="quill-editor"></div>
-                      <input type="hidden" name="content" class="content-input">
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="d-flex justify-content-between">
-                  <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check me-1"></i>
-                    <%= isManager ? 'Publish Post' : 'Submit for Review' %>
-                  </button>
-                </div>
-              </form>
-            </div>
-            
-            <!-- Twitter Post -->
-            <div class="tab-pane fade" id="twitter-panel" role="tabpanel">
-              <form action="/posts/create" method="POST" enctype="multipart/form-data" class="post-form">
-                <input type="hidden" name="sourceType" value="twitter">
-                
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h6 class="mb-0">Twitter/X Post</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="mb-3">
-                      <label for="sourceUrl-twitter" class="form-label">Tweet URL <span class="text-danger">*</span></label>
-                      <input type="url" class="form-control" id="sourceUrl-twitter" name="sourceUrl" placeholder="https://twitter.com/user/status/..." required>
-                      <div class="form-text">Paste the tweet URL (twitter.com or x.com)</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="title-twitter" class="form-label">Title <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="title-twitter" name="title" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="image-twitter" class="form-label">Screenshot/Image (optional)</label>
-                      <input type="file" class="form-control" id="image-twitter" name="image" accept="image/*">
-                      <div class="form-text">Upload a screenshot of the tweet for the feed display</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label class="form-label">Notes (optional)</label>
-                      <div id="editor-twitter" class="quill-editor"></div>
-                      <input type="hidden" name="content" class="content-input">
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="d-flex justify-content-between">
-                  <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check me-1"></i>
-                    <%= isManager ? 'Publish Post' : 'Submit for Review' %>
-                  </button>
-                </div>
-              </form>
-            </div>
-            
-            <!-- Instagram Post -->
-            <div class="tab-pane fade" id="instagram-panel" role="tabpanel">
-              <form action="/posts/create" method="POST" enctype="multipart/form-data" class="post-form">
-                <input type="hidden" name="sourceType" value="instagram">
-                
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h6 class="mb-0">Instagram Post</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="mb-3">
-                      <label for="sourceUrl-instagram" class="form-label">Instagram URL <span class="text-danger">*</span></label>
-                      <input type="url" class="form-control" id="sourceUrl-instagram" name="sourceUrl" placeholder="https://www.instagram.com/p/..." required>
-                      <div class="form-text">Paste the Instagram post URL</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="title-instagram" class="form-label">Title <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="title-instagram" name="title" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="image-instagram" class="form-label">Screenshot/Image (optional)</label>
-                      <input type="file" class="form-control" id="image-instagram" name="image" accept="image/*">
-                      <div class="form-text">Upload a screenshot of the post for the feed display</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label class="form-label">Notes (optional)</label>
-                      <div id="editor-instagram" class="quill-editor"></div>
-                      <input type="hidden" name="content" class="content-input">
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="d-flex justify-content-between">
-                  <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check me-1"></i>
-                    <%= isManager ? 'Publish Post' : 'Submit for Review' %>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-lg-4">
-          <div class="card">
+<h2>Create Post</h2>
+
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Post Type Tabs -->
+    <ul class="nav nav-tabs mb-4" id="postTypeTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="original-tab" data-bs-toggle="tab" data-bs-target="#original-panel" type="button" role="tab">
+          <i class="bi bi-file-text me-1"></i>Original
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="youtube-tab" data-bs-toggle="tab" data-bs-target="#youtube-panel" type="button" role="tab">
+          <i class="bi bi-youtube me-1"></i>YouTube
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="twitter-tab" data-bs-toggle="tab" data-bs-target="#twitter-panel" type="button" role="tab">
+          <i class="bi bi-twitter-x me-1"></i>Twitter/X
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="instagram-tab" data-bs-toggle="tab" data-bs-target="#instagram-panel" type="button" role="tab">
+          <i class="bi bi-instagram me-1"></i>Instagram
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="postTypeContent">
+      <!-- Original Post -->
+      <div class="tab-pane fade show active" id="original-panel" role="tabpanel">
+        <form action="/posts/create" method="POST" enctype="multipart/form-data" class="post-form">
+          <input type="hidden" name="sourceType" value="original">
+
+          <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0">Publishing Info</h6>
+              <h6 class="mb-0">Original Post</h6>
             </div>
             <div class="card-body">
-              <% if (isManager) { %>
-                <div class="d-flex align-items-center mb-3">
-                  <i class="bi bi-check-circle text-success me-2"></i>
-                  <span class="small">Your post will be published immediately</span>
-                </div>
-              <% } else { %>
-                <div class="d-flex align-items-center mb-3">
-                  <i class="bi bi-clock text-warning me-2"></i>
-                  <span class="small">Your post will be reviewed before publishing</span>
-                </div>
-              <% } %>
+              <div class="mb-3">
+                <label for="title-original" class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title-original" name="title" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="linkUrl-original" class="form-label">Link URL</label>
+                <input type="url" class="form-control" id="linkUrl-original" name="linkUrl" placeholder="https://example.com">
+                <div class="form-text">Clicking the title or image in the feed will open this URL</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="image-original" class="form-label">Image</label>
+                <input type="file" class="form-control" id="image-original" name="image" accept="image/*">
+                <div class="form-text">Accepted formats: JPEG, PNG, GIF, WebP (max 10MB)</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Content</label>
+                <div id="editor-original" class="quill-editor"></div>
+                <input type="hidden" name="content" class="content-input">
+              </div>
             </div>
           </div>
-        </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check me-1"></i>
+              <%= isManager ? 'Publish Post' : 'Submit for Review' %>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- YouTube Post -->
+      <div class="tab-pane fade" id="youtube-panel" role="tabpanel">
+        <form action="/posts/create" method="POST" class="post-form">
+          <input type="hidden" name="sourceType" value="youtube">
+
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">YouTube Video</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="sourceUrl-youtube" class="form-label">YouTube URL <span class="text-danger">*</span></label>
+                <input type="url" class="form-control" id="sourceUrl-youtube" name="sourceUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+                <div class="form-text">Paste the YouTube video URL. The thumbnail will be fetched automatically.</div>
+              </div>
+
+              <div id="youtube-preview" class="mb-3" style="display: none;">
+                <label class="form-label">Preview</label>
+                <div class="ratio ratio-16x9">
+                  <iframe id="youtube-preview-iframe" src="" frameborder="0" allowfullscreen></iframe>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="title-youtube" class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title-youtube" name="title" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Description (optional)</label>
+                <div id="editor-youtube" class="quill-editor"></div>
+                <input type="hidden" name="content" class="content-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check me-1"></i>
+              <%= isManager ? 'Publish Post' : 'Submit for Review' %>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Twitter Post -->
+      <div class="tab-pane fade" id="twitter-panel" role="tabpanel">
+        <form action="/posts/create" method="POST" enctype="multipart/form-data" class="post-form">
+          <input type="hidden" name="sourceType" value="twitter">
+
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">Twitter/X Post</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="sourceUrl-twitter" class="form-label">Tweet URL <span class="text-danger">*</span></label>
+                <input type="url" class="form-control" id="sourceUrl-twitter" name="sourceUrl" placeholder="https://twitter.com/user/status/..." required>
+                <div class="form-text">Paste the tweet URL (twitter.com or x.com)</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="title-twitter" class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title-twitter" name="title" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="image-twitter" class="form-label">Screenshot/Image (optional)</label>
+                <input type="file" class="form-control" id="image-twitter" name="image" accept="image/*">
+                <div class="form-text">Upload a screenshot of the tweet for the feed display</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Notes (optional)</label>
+                <div id="editor-twitter" class="quill-editor"></div>
+                <input type="hidden" name="content" class="content-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check me-1"></i>
+              <%= isManager ? 'Publish Post' : 'Submit for Review' %>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Instagram Post -->
+      <div class="tab-pane fade" id="instagram-panel" role="tabpanel">
+        <form action="/posts/create" method="POST" enctype="multipart/form-data" class="post-form">
+          <input type="hidden" name="sourceType" value="instagram">
+
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">Instagram Post</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="sourceUrl-instagram" class="form-label">Instagram URL <span class="text-danger">*</span></label>
+                <input type="url" class="form-control" id="sourceUrl-instagram" name="sourceUrl" placeholder="https://www.instagram.com/p/..." required>
+                <div class="form-text">Paste the Instagram post URL</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="title-instagram" class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title-instagram" name="title" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="image-instagram" class="form-label">Screenshot/Image (optional)</label>
+                <input type="file" class="form-control" id="image-instagram" name="image" accept="image/*">
+                <div class="form-text">Upload a screenshot of the post for the feed display</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Notes (optional)</label>
+                <div id="editor-instagram" class="quill-editor"></div>
+                <input type="hidden" name="content" class="content-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check me-1"></i>
+              <%= isManager ? 'Publish Post' : 'Submit for Review' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">Publishing Info</h6>
+      </div>
+      <div class="card-body">
+        <% if (isManager) { %>
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span class="small">Your post will be published immediately</span>
+          </div>
+        <% } else { %>
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-clock text-warning me-2"></i>
+            <span class="small">Your post will be reviewed before publishing</span>
+          </div>
+        <% } %>
       </div>
     </div>
   </div>
 </div>
-
-<style>
-  .nav-tabs .nav-link {
-    color: #666;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 0.75rem 1.25rem;
-  }
-  
-  .nav-tabs .nav-link:hover {
-    color: var(--un-blue);
-    border-color: transparent;
-  }
-  
-  .nav-tabs .nav-link.active {
-    color: var(--un-blue);
-    background: transparent;
-    border-color: transparent;
-    border-bottom: 2px solid var(--un-blue);
-  }
-  
-  .quill-editor {
-    background: #fff;
-  }
-  
-  .quill-editor .ql-container {
-    min-height: 150px;
-  }
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -287,9 +246,9 @@ document.addEventListener('DOMContentLoaded', function() {
       ['clean']
     ]
   };
-  
+
   const editors = {};
-  
+
   ['original', 'youtube', 'twitter', 'instagram'].forEach(type => {
     const editorEl = document.getElementById('editor-' + type);
     if (editorEl) {
@@ -300,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   });
-  
+
   // Update hidden inputs on form submit
   document.querySelectorAll('.post-form').forEach(form => {
     form.addEventListener('submit', function() {
@@ -314,12 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-  
+
   // YouTube URL preview
   const youtubeUrlInput = document.getElementById('sourceUrl-youtube');
   const youtubePreview = document.getElementById('youtube-preview');
   const youtubeIframe = document.getElementById('youtube-preview-iframe');
-  
+
   function extractYouTubeId(url) {
     try {
       const urlObj = new URL(url);
@@ -331,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) {}
     return null;
   }
-  
+
   youtubeUrlInput.addEventListener('input', function() {
     const videoId = extractYouTubeId(this.value);
     if (videoId) {
